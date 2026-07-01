@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<!-- saved from url=(0160)file:///C:/Users/wallace/Downloads/%E6%95%B8%E4%BD%8D%E8%A1%8C%E9%8A%B7%E5%82%B3%E6%92%AD%E8%88%87%E5%AF%A6%E5%8B%99_%E9%BB%9E%E5%90%8D%E7%B3%BB%E7%B5%B1_1.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>數位行銷傳播與實務・點名系統</title>
+<script src="./數位行銷傳播與實務・點名系統_files/qrcode.min.js.下載"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --purple:#3C3489;--purple-light:#EEEDFE;--purple-mid:#7F77DD;
+  --teal:#085041;--teal-light:#E1F5EE;--teal-mid:#1D9E75;
+  --coral:#712B13;--coral-light:#FAECE7;--coral-mid:#D85A30;
+  --amber:#633806;--amber-light:#FAEEDA;--amber-mid:#BA7517;
+  --bg:#F7F6F3;--surface:#FFFFFF;--border:#E5E3DC;
+  --text:#1A1A18;--text2:#555552;--text3:#888884;
+  --sans:'PingFang TC','Noto Sans TC','Microsoft JhengHei',Arial,sans-serif;
+  --radius:10px;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── TABS ── */
+.tab-bar{
+  background:var(--purple);display:flex;align-items:center;
+  padding:0 24px;gap:4px;position:sticky;top:0;z-index:100;
+}
+.tab-bar h1{color:#fff;font-size:14px;font-weight:700;padding:16px 0;margin-right:20px;white-space:nowrap}
+.tab-btn{
+  padding:16px 18px;font-size:13px;font-weight:500;color:rgba(255,255,255,.65);
+  background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;
+  transition:color .15s,border-color .15s;white-space:nowrap;
+}
+.tab-btn.active{color:#fff;border-bottom-color:#fff}
+.tab-btn:hover{color:#fff}
+
+/* ── PANELS ── */
+.panel{display:none;padding:32px;max-width:1100px;margin:0 auto}
+.panel.active{display:block}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title span{font-size:18px}
+
+/* ── FORMS ── */
+label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;letter-spacing:.03em}
+input[type=text],input[type=number],select,textarea{
+  width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;
+  font-size:14px;font-family:var(--sans);color:var(--text);background:var(--surface);
+  transition:border-color .15s;outline:none;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--purple-mid)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-group{margin-bottom:16px}
+
+/* ── BUTTONS ── */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;border:none;transition:opacity .15s,transform .1s;font-family:var(--sans);
+}
+.btn:hover{opacity:.88}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--purple);color:#fff}
+.btn-teal{background:var(--teal-mid);color:#fff}
+.btn-coral{background:var(--coral-mid);color:#fff}
+.btn-amber{background:var(--amber-mid);color:#fff}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+/* ── QR SECTION ── */
+.qr-wrap{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px;background:var(--purple-light);border-radius:var(--radius);
+  border:2px dashed var(--purple-mid);min-height:240px;
+}
+#qrcode{background:#fff;padding:16px;border-radius:8px;margin-bottom:16px;display:inline-block}
+#qrcode canvas,#qrcode img{display:block}
+.qr-timer{font-size:13px;color:var(--purple);font-weight:600;margin-top:8px}
+.qr-timer-bar{width:200px;height:4px;background:rgba(124,113,221,.2);border-radius:2px;margin-top:6px;overflow:hidden}
+.qr-timer-fill{height:100%;background:var(--purple-mid);border-radius:2px;transition:width 1s linear}
+.qr-token-display{font-size:11px;color:var(--text3);margin-top:8px;font-family:monospace}
+
+/* ── STATUS BADGE ── */
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.badge-present{background:var(--teal-light);color:var(--teal)}
+.badge-absent{background:var(--coral-light);color:var(--coral)}
+.badge-manual{background:var(--amber-light);color:var(--amber)}
+
+/* ── TABLE ── */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{background:var(--purple);color:#fff;padding:10px 14px;text-align:left;font-weight:600;font-size:12px}
+.tbl td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+.tbl tr:hover td{background:#F8F8F6}
+.tbl tr:last-child td{border-bottom:none}
+
+/* ── STATS BAR ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px;text-align:center}
+.stat-num{font-size:26px;font-weight:800;color:var(--purple)}
+.stat-label{font-size:11px;color:var(--text3);margin-top:4px}
+
+/* ── STUDENT PAGE ── */
+.student-wrap{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#3C3489 0%,#7F77DD 100%);padding:24px;
+}
+.student-card{
+  background:#fff;border-radius:16px;padding:36px 32px;
+  max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.15);
+}
+.student-card h2{font-size:20px;font-weight:800;color:var(--purple);margin-bottom:6px}
+.student-card .course-info{font-size:13px;color:var(--text3);margin-bottom:24px}
+.student-step{display:none}
+.student-step.active{display:block}
+.confirm-name{
+  background:var(--purple-light);border:2px solid var(--purple-mid);
+  border-radius:10px;padding:16px;text-align:center;margin:16px 0;
+}
+.confirm-name .name-display{font-size:22px;font-weight:800;color:var(--purple);margin-bottom:4px}
+.confirm-name .id-display{font-size:13px;color:var(--text3)}
+.success-wrap{text-align:center;padding:20px 0}
+.success-icon{font-size:56px;margin-bottom:16px}
+.success-title{font-size:20px;font-weight:800;color:var(--teal);margin-bottom:6px}
+.success-sub{font-size:13px;color:var(--text3)}
+.error-msg{background:var(--coral-light);color:var(--coral);border-radius:8px;padding:10px 14px;font-size:13px;margin-top:8px;display:none}
+
+/* ── ALERTS ── */
+.alert{padding:12px 16px;border-radius:8px;font-size:13px;margin-bottom:16px}
+.alert-info{background:var(--purple-light);color:var(--purple);border:1px solid var(--purple-mid)}
+.alert-success{background:var(--teal-light);color:var(--teal);border:1px solid var(--teal-mid)}
+.alert-warn{background:var(--amber-light);color:var(--amber);border:1px solid var(--amber-mid)}
+
+/* ── UPLOAD ZONE ── */
+.upload-zone{
+  border:2px dashed var(--border);border-radius:var(--radius);
+  padding:32px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;
+}
+.upload-zone:hover{border-color:var(--purple-mid);background:var(--purple-light)}
+.upload-zone p{font-size:13px;color:var(--text3);margin-top:8px}
+
+/* ── WEEK SELECTOR ── */
+.week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px}
+.week-chip{
+  padding:8px 4px;text-align:center;border-radius:8px;cursor:pointer;
+  border:1px solid var(--border);font-size:11px;color:var(--text2);
+  transition:background .15s,border-color .15s;background:var(--surface);
+}
+.week-chip:hover{background:var(--purple-light);border-color:var(--purple-mid)}
+.week-chip.selected{background:var(--purple);color:#fff;border-color:var(--purple)}
+.week-chip.week-skip{opacity:.4;pointer-events:none}
+.wk-label{font-size:9px;color:inherit;opacity:.7;display:block;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week-chip .wk-num{font-weight:800;font-size:13px;display:block}
+.week-chip .wk-date{font-size:10px;opacity:.75;display:block;margin-top:1px}
+
+/* ── MANUAL FILL ── */
+.manual-search{display:flex;gap:8px;margin-bottom:12px}
+.manual-search input{flex:1}
+
+/* ── MISC ── */
+.divider{border:none;border-top:1px solid var(--border);margin:20px 0}
+.text-muted{font-size:12px;color:var(--text3)}
+.mt8{margin-top:8px}.mt16{margin-top:16px}
+code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;border-radius:4px}
+.hidden{display:none!important}
+
+@media(max-width:600px){
+  .form-row{grid-template-columns:1fr}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .panel{padding:16px}
+  .week-grid{grid-template-columns:repeat(4,1fr)}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PASSWORD SCREEN
+═══════════════════════════════════════════════ -->
+<div id="password-screen" style="display: block;">
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3C3489 0%,#7F77DD 100%);padding:24px">
+  <div style="background:#fff;border-radius:16px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2);text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">🔐</div>
+    <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">點名系統・教師端</h2>
+    <p style="font-size:13px;color:#888884;margin-bottom:24px">請輸入教師密碼以繼續</p>
+    <div style="margin-bottom:16px;text-align:left">
+      <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">密碼</label>
+      <input type="password" id="pwInput" placeholder="輸入密碼" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" onkeydown="if(event.key===&#39;Enter&#39;)checkPassword()" onfocus="this.style.borderColor=&#39;#7F77DD&#39;" onblur="this.style.borderColor=&#39;#E5E3DC&#39;">
+    </div>
+    <div id="pwError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
+    <button onclick="checkPassword()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+      進入系統 →
+    </button>
+    <div id="pwSetupHint" style="margin-top: 16px; font-size: 12px; color: rgb(136, 136, 132); display: block;">
+      尚未設定密碼。請先至 <strong>設定頁籤 → 教師密碼</strong> 設定密碼。<br>
+      <button onclick="skipPasswordForSetup()" style="margin-top:8px;padding:6px 16px;background:#EEEDFE;color:#3C3489;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
+        進入設定頁面
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     TEACHER INTERFACE
+═══════════════════════════════════════════════ -->
+<div id="teacher-interface" style="display: none;">
+<div class="tab-bar">
+  <h1>🎓 點名系統</h1>
+  <button class="tab-btn active" onclick="switchTab(&#39;tab-qr&#39;)">📱 產生 QR Code</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-records&#39;)">📊 出席紀錄</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-roster&#39;)">👥 學生名單</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-settings&#39;)">⚙️ 設定</button>
+</div>
+
+<!-- ── TAB: QR Code ── -->
+<div id="tab-qr" class="panel active">
+  <div style="display:grid;grid-template-columns:1fr 380px;gap:24px">
+
+    <div>
+      <div class="card">
+        <div class="card-title"><span>📅</span>選擇週別</div>
+        <div class="week-grid" id="weekGrid">
+    <div class="week-chip " onclick="selectWeek(1)" id="wchip-1">
+      <span class="wk-num">W1</span>
+      <span class="wk-date">02/27</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(2)" id="wchip-2">
+      <span class="wk-num">W2</span>
+      <span class="wk-date">03/06</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(3)" id="wchip-3">
+      <span class="wk-num">W3</span>
+      <span class="wk-date">03/13</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(4)" id="wchip-4">
+      <span class="wk-num">W4</span>
+      <span class="wk-date">03/20</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(5)" id="wchip-5">
+      <span class="wk-num">W5</span>
+      <span class="wk-date">03/27</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(6)" id="wchip-6">
+      <span class="wk-num">W6</span>
+      <span class="wk-date">04/03</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(7)" id="wchip-7">
+      <span class="wk-num">W7</span>
+      <span class="wk-date">04/10</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(8)" id="wchip-8">
+      <span class="wk-num">W8</span>
+      <span class="wk-date">04/17</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(9)" id="wchip-9">
+      <span class="wk-num">W9</span>
+      <span class="wk-date">04/24</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(10)" id="wchip-10">
+      <span class="wk-num">W10</span>
+      <span class="wk-date">05/01</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(11)" id="wchip-11">
+      <span class="wk-num">W11</span>
+      <span class="wk-date">05/08</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(12)" id="wchip-12">
+      <span class="wk-num">W12</span>
+      <span class="wk-date">05/15</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(13)" id="wchip-13">
+      <span class="wk-num">W13</span>
+      <span class="wk-date">05/22</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(14)" id="wchip-14">
+      <span class="wk-num">W14</span>
+      <span class="wk-date">05/29</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(15)" id="wchip-15">
+      <span class="wk-num">W15</span>
+      <span class="wk-date">06/05</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(16)" id="wchip-16">
+      <span class="wk-num">W16</span>
+      <span class="wk-date">06/12</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(17)" id="wchip-17">
+      <span class="wk-num">W17</span>
+      <span class="wk-date">06/19</span>
+      
+    </div>
+  
+    <div class="week-chip " onclick="selectWeek(18)" id="wchip-18">
+      <span class="wk-num">W18</span>
+      <span class="wk-date">06/26</span>
+      
+    </div>
+  </div>
+        <div class="form-group">
+          <label>當堂問題（學生掃碼後需回答才能完成簽到）</label>
+          <input type="text" id="questionInput" placeholder="例：今天講到哪個廣告模型的縮寫？">
+        </div>
+        <div class="form-group">
+          <label>正確答案（不分大小寫）</label>
+          <input type="text" id="answerInput" placeholder="例：AIDA">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="startSession()">🚀 開始點名</button>
+          <button class="btn btn-ghost" onclick="stopSession()" id="stopBtn" style="display:none">⏹ 結束點名</button>
+        </div>
+      </div>
+
+      <div class="card" id="liveListCard">
+        <div class="card-title"><span>✅</span>即時簽到名單 <span id="liveCount" style="margin-left:auto;font-size:13px;color:var(--text3);font-weight:400"></span></div>
+        <div id="liveList"><p class="text-muted">尚無人簽到</p></div>
+        <hr class="divider">
+        <div class="card-title" style="margin-bottom:12px"><span>✏️</span>手動補填</div>
+        <div class="manual-search">
+          <input type="text" id="manualSearch" placeholder="輸入學號或姓名搜尋" oninput="searchStudent()">
+        </div>
+        <div id="manualResults"></div>
+      </div>
+    </div>
+
+    <!-- QR COLUMN -->
+    <div>
+      <div class="card" style="text-align:center">
+        <div class="card-title" style="justify-content:center"><span>📲</span>掃碼簽到</div>
+        <div id="sessionInfo" class="alert alert-info" style="margin-bottom:16px">請先選擇週別並開始點名</div>
+        <div class="qr-wrap" id="qrWrap">
+          <div id="qrcode"></div>
+          <div class="qr-timer" id="qrTimer">尚未開始</div>
+          <div class="qr-timer-bar"><div class="qr-timer-fill" id="qrTimerFill" style="width:100%"></div></div>
+          <div class="qr-token-display" id="qrTokenDisplay"></div>
+        </div>
+        <p class="text-muted mt16">QR Code 每 60 秒自動更新<br>學生掃碼後需輸入學號及答案</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── TAB: Records ── -->
+<div id="tab-records" class="panel">
+  <div class="card">
+    <div class="card-title"><span>📊</span>出席紀錄查閱</div>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>選擇週別</label>
+        <select id="recordWeekSelect" onchange="loadRecords()">
+          <option value="">— 選擇週別 —</option>
+        <option value="1">第 1 週（02/27）</option><option value="2">第 2 週（03/06）</option><option value="3">第 3 週（03/13）</option><option value="4">第 4 週（03/20）</option><option value="5">第 5 週（03/27）</option><option value="6">第 6 週（04/03）</option><option value="7">第 7 週（04/10）</option><option value="8">第 8 週（04/17）</option><option value="9">第 9 週（04/24）</option><option value="10">第 10 週（05/01）</option><option value="11">第 11 週（05/08）</option><option value="12">第 12 週（05/15）</option><option value="13">第 13 週（05/22）</option><option value="14">第 14 週（05/29）</option><option value="15">第 15 週（06/05）</option><option value="16">第 16 週（06/12）</option><option value="17">第 17 週（06/19）</option><option value="18">第 18 週（06/26）</option></select>
+      </div>
+      <div style="display:flex;align-items:flex-end;gap:8px">
+        <button class="btn btn-teal" onclick="exportCSV()">⬇️ 匯出 CSV</button>
+        <button class="btn btn-ghost" onclick="exportAllCSV()">📦 匯出全學期</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="recordStats" style="display:none">
+    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">總人數</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--teal-mid)" id="statPresent">0</div><div class="stat-label">出席</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--coral-mid)" id="statAbsent">0</div><div class="stat-label">缺席</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--amber-mid)" id="statManual">0</div><div class="stat-label">手動補填</div></div>
+  </div>
+
+  <div class="card">
+    <div id="recordTable"><p class="text-muted">請選擇週別查看紀錄</p></div>
+  </div>
+</div>
+
+<!-- ── TAB: Roster ── -->
+<div id="tab-roster" class="panel">
+  <div class="card">
+    <div class="card-title"><span>👥</span>學生名單管理</div>
+    <div class="alert alert-info">CSV 格式：第一欄為學號、第二欄為姓名，第一行為標題列（學號,姓名）</div>
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById(&#39;csvFile&#39;).click()">
+      <div style="font-size:32px">📂</div>
+      <p>點擊上傳 CSV 名單檔案</p>
+      <p>或拖曳檔案至此</p>
+    </div>
+    <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
+    <div class="btn-row mt16">
+      <button class="btn btn-ghost btn-sm" onclick="downloadTemplate()">⬇️ 下載名單範本</button>
+    </div>
+  </div>
+
+  <div class="card" id="rosterCard" style="display:none">
+    <div class="card-title"><span>📋</span>目前名單 <span id="rosterCount" style="margin-left:auto;font-size:13px;font-weight:400;color:var(--text3)"></span></div>
+    <div style="overflow-x:auto">
+      <table class="tbl" id="rosterTable">
+        <thead><tr><th>#</th><th>學號</th><th>姓名</th><th>操作</th></tr></thead>
+        <tbody id="rosterBody"></tbody>
+      </table>
+    </div>
+    <div class="btn-row mt16">
+      <button class="btn btn-coral btn-sm" onclick="clearRoster()">🗑️ 清除名單</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: Settings ── -->
+<div id="tab-settings" class="panel">
+
+  <div class="card">
+    <div class="card-title"><span>📅</span>學期週次設定</div>
+    <p class="text-muted" style="margin-bottom:16px">設定學期第一週的上課日期，系統會自動產生 18 週的週次與日期，你也可以手動調整每一週。</p>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>第一週上課日期</label>
+        <input type="date" id="semesterStart">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>總週數</label>
+        <select id="totalWeeks">
+          <option value="14">14 週</option>
+          <option value="16">16 週</option>
+          <option value="18" selected="">18 週</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="generateWeeks()" style="margin-bottom:20px">🗓️ 自動產生週次</button>
+    <div id="weekEditGrid" style="display: block;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <label style="margin:0">手動調整各週（可修改日期、加備註或標記停課）</label>
+        <button class="btn btn-teal btn-sm" onclick="saveWeeks()">💾 儲存週次設定</button>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="tbl" id="weekEditTable">
+          <thead><tr><th style="width:50px">週次</th><th style="width:120px">日期</th><th>備註標籤（選填，如：期中報告）</th><th style="width:80px">停課</th></tr></thead>
+          <tbody id="weekEditBody" data-count="18">
+    <tr id="weRow-0">
+      <td style="font-weight:700;color:var(--purple)">W1</td>
+      <td><input type="date" id="we-date-0" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-0" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-0" onchange="toggleSkipRow(0)"></td>
+    </tr>
+  
+    <tr id="weRow-1">
+      <td style="font-weight:700;color:var(--purple)">W2</td>
+      <td><input type="date" id="we-date-1" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-1" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-1" onchange="toggleSkipRow(1)"></td>
+    </tr>
+  
+    <tr id="weRow-2">
+      <td style="font-weight:700;color:var(--purple)">W3</td>
+      <td><input type="date" id="we-date-2" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-2" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-2" onchange="toggleSkipRow(2)"></td>
+    </tr>
+  
+    <tr id="weRow-3">
+      <td style="font-weight:700;color:var(--purple)">W4</td>
+      <td><input type="date" id="we-date-3" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-3" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-3" onchange="toggleSkipRow(3)"></td>
+    </tr>
+  
+    <tr id="weRow-4">
+      <td style="font-weight:700;color:var(--purple)">W5</td>
+      <td><input type="date" id="we-date-4" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-4" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-4" onchange="toggleSkipRow(4)"></td>
+    </tr>
+  
+    <tr id="weRow-5">
+      <td style="font-weight:700;color:var(--purple)">W6</td>
+      <td><input type="date" id="we-date-5" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-5" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-5" onchange="toggleSkipRow(5)"></td>
+    </tr>
+  
+    <tr id="weRow-6">
+      <td style="font-weight:700;color:var(--purple)">W7</td>
+      <td><input type="date" id="we-date-6" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-6" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-6" onchange="toggleSkipRow(6)"></td>
+    </tr>
+  
+    <tr id="weRow-7">
+      <td style="font-weight:700;color:var(--purple)">W8</td>
+      <td><input type="date" id="we-date-7" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-7" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-7" onchange="toggleSkipRow(7)"></td>
+    </tr>
+  
+    <tr id="weRow-8">
+      <td style="font-weight:700;color:var(--purple)">W9</td>
+      <td><input type="date" id="we-date-8" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-8" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-8" onchange="toggleSkipRow(8)"></td>
+    </tr>
+  
+    <tr id="weRow-9">
+      <td style="font-weight:700;color:var(--purple)">W10</td>
+      <td><input type="date" id="we-date-9" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-9" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-9" onchange="toggleSkipRow(9)"></td>
+    </tr>
+  
+    <tr id="weRow-10">
+      <td style="font-weight:700;color:var(--purple)">W11</td>
+      <td><input type="date" id="we-date-10" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-10" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-10" onchange="toggleSkipRow(10)"></td>
+    </tr>
+  
+    <tr id="weRow-11">
+      <td style="font-weight:700;color:var(--purple)">W12</td>
+      <td><input type="date" id="we-date-11" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-11" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-11" onchange="toggleSkipRow(11)"></td>
+    </tr>
+  
+    <tr id="weRow-12">
+      <td style="font-weight:700;color:var(--purple)">W13</td>
+      <td><input type="date" id="we-date-12" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-12" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-12" onchange="toggleSkipRow(12)"></td>
+    </tr>
+  
+    <tr id="weRow-13">
+      <td style="font-weight:700;color:var(--purple)">W14</td>
+      <td><input type="date" id="we-date-13" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-13" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-13" onchange="toggleSkipRow(13)"></td>
+    </tr>
+  
+    <tr id="weRow-14">
+      <td style="font-weight:700;color:var(--purple)">W15</td>
+      <td><input type="date" id="we-date-14" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-14" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-14" onchange="toggleSkipRow(14)"></td>
+    </tr>
+  
+    <tr id="weRow-15">
+      <td style="font-weight:700;color:var(--purple)">W16</td>
+      <td><input type="date" id="we-date-15" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-15" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-15" onchange="toggleSkipRow(15)"></td>
+    </tr>
+  
+    <tr id="weRow-16">
+      <td style="font-weight:700;color:var(--purple)">W17</td>
+      <td><input type="date" id="we-date-16" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-16" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-16" onchange="toggleSkipRow(16)"></td>
+    </tr>
+  
+    <tr id="weRow-17">
+      <td style="font-weight:700;color:var(--purple)">W18</td>
+      <td><input type="date" id="we-date-17" value="" style="padding:6px 8px;font-size:12px"></td>
+      <td><input type="text" id="we-label-17" value="" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px"></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-17" onchange="toggleSkipRow(17)"></td>
+    </tr>
+  </tbody>
+        </table>
+      </div>
+      <div class="btn-row" style="margin-top:12px">
+        <button class="btn btn-teal btn-sm" onclick="saveWeeks()">💾 儲存週次設定</button>
+        <button class="btn btn-ghost btn-sm" onclick="resetWeeks()">↩️ 還原預設</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🔐</span>教師密碼設定</div>
+    <p class="text-muted" style="margin-bottom:16px">設定進入老師端的密碼。學生掃 QR Code 進入的簽到頁不受影響。</p>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>新密碼</label>
+        <input type="password" id="newPw" placeholder="輸入新密碼（至少4碼）">
+      </div>
+      <div class="form-group" style="margin:0">
+        <label>確認新密碼</label>
+        <input type="password" id="confirmPw" placeholder="再輸入一次">
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="savePassword()">💾 儲存密碼</button>
+      <button class="btn btn-ghost" onclick="clearPassword()">🗑️ 移除密碼</button>
+    </div>
+    <div id="pwSaveMsg" class="mt8"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>⚙️</span>Google Sheets 串接設定</div>
+    <div class="alert alert-warn">需要先在 Google Sheets 建立 Apps Script 端點，詳見下方說明</div>
+    <div class="form-group">
+      <label>Google Apps Script 網址（Web App URL）</label>
+      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/...">
+    </div>
+    <button class="btn btn-primary" onclick="saveGasUrl()">💾 儲存設定</button>
+    <button class="btn btn-ghost mt8" onclick="testGasConnection()" style="margin-left:8px">🔗 測試連線</button>
+    <div id="gasTestResult" class="mt8"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>📋</span>Google Apps Script 設定步驟</div>
+    <ol style="padding-left:20px;line-height:2;font-size:13px;color:var(--text2)">
+      <li>開啟你的 Google Sheets，建立一個新試算表</li>
+      <li>點選上方選單「擴充功能」→「Apps Script」</li>
+      <li>把下方程式碼完整貼入編輯器（取代原有內容）</li>
+      <li>點「儲存」，然後點「部署」→「新增部署作業」</li>
+      <li>類型選「網頁應用程式」，執行身分選「我」，存取權選「任何人」</li>
+      <li>點「部署」，複製產生的網址，貼到上方輸入框</li>
+    </ol>
+    <div style="margin-top:16px">
+      <label>貼入 Apps Script 的程式碼：</label>
+      <textarea style="font-family:monospace;font-size:11px;height:280px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:14px;resize:vertical" readonly="" id="gasCode"></textarea>
+      <button class="btn btn-ghost btn-sm mt8" onclick="copyGasCode()">📋 複製程式碼</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span>🗄️</span>本機資料管理</div>
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-sm" onclick="exportLocalData()">⬇️ 備份所有資料</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById(&#39;importData&#39;).click()">⬆️ 還原備份</button>
+      <button class="btn btn-coral btn-sm" onclick="clearAllData()">🗑️ 清除所有資料</button>
+    </div>
+    <input type="file" id="importData" accept=".json" style="display:none" onchange="importLocalData(event)">
+  </div>
+</div>
+</div><!-- /teacher-interface -->
+
+<!-- ══════════════════════════════════════════════
+     STUDENT INTERFACE
+═══════════════════════════════════════════════ -->
+<div id="student-interface" style="display:none">
+<div class="student-wrap">
+  <div class="student-card">
+    <h2>課堂簽到</h2>
+    <div class="course-info" id="studentCourseInfo">數位行銷傳播與實務</div>
+
+    <!-- Step 1: 輸入學號 -->
+    <div class="student-step active" id="step1">
+      <div class="form-group">
+        <label>請輸入你的學號</label>
+        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="lookupStudent()">查詢 →</button>
+      <div class="error-msg" id="err1"></div>
+    </div>
+
+    <!-- Step 2: 確認姓名 -->
+    <div class="student-step" id="step2">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">請確認你的姓名：</p>
+      <div class="confirm-name">
+        <div class="name-display" id="confirmName"></div>
+        <div class="id-display" id="confirmId"></div>
+      </div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="btn btn-ghost" onclick="goStep(1)">← 重新輸入</button>
+        <button class="btn btn-primary" onclick="goStep(3)">是我本人 →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: 回答問題 -->
+    <div class="student-step" id="step3">
+      <div class="form-group">
+        <label id="questionLabel" style="font-size:14px;color:var(--text);font-weight:700;line-height:1.5"></label>
+        <input type="text" id="studentAnswer" placeholder="輸入答案" autocomplete="off" style="margin-top:10px">
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="submitAttendance()">✅ 完成簽到</button>
+      <div class="error-msg" id="err3"></div>
+    </div>
+
+    <!-- Step 4: 成功 -->
+    <div class="student-step" id="step4">
+      <div class="success-wrap">
+        <div class="success-icon">✅</div>
+        <div class="success-title">簽到成功！</div>
+        <div class="success-sub" id="successInfo"></div>
+      </div>
+    </div>
+
+    <!-- Step 5: 錯誤/已簽到 -->
+    <div class="student-step" id="step5">
+      <div class="success-wrap">
+        <div class="success-icon" id="errorIcon">❌</div>
+        <div class="success-title" style="color:var(--coral)" id="errorTitle">簽到失敗</div>
+        <div class="success-sub" id="errorInfo"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div><!-- /student-interface -->
+
+<script>
+// ══════════════════════════════════════════════
+// DATA STORE
+// ══════════════════════════════════════════════
+const DB = {
+  get(k){ try{ return JSON.parse(localStorage.getItem('attn_'+k)||'null') }catch{return null} },
+  set(k,v){ localStorage.setItem('attn_'+k, JSON.stringify(v)) },
+  del(k){ localStorage.removeItem('attn_'+k) }
+};
+
+// WEEKS is dynamic — loaded from localStorage
+function getWEEKS(){
+  const saved = DB.get('weeks');
+  if(saved && saved.length>0) return saved;
+  return Array.from({length:18},(_,i)=>({n:i+1,date:'未設定',label:'',skip:false}));
+}
+function getWeekInfo(n){ return getWEEKS().find(w=>w.n===n)||{n,date:'未設定',label:''}; }
+
+// ── State ──
+let currentWeek = null;
+let sessionToken = null;
+let sessionQuestion = '';
+let sessionAnswer = '';
+let qrInterval = null;
+let timerInterval = null;
+let timerSec = 60;
+let qrInstance = null;
+let roster = [];
+let isStudentMode = false;
+let studentTokenData = null;
+
+
+
+// ══════════════════════════════════════════════
+// PASSWORD
+// ══════════════════════════════════════════════
+function hashPassword(pw){
+  // Simple hash — good enough for classroom use
+  let h = 0;
+  for(let i=0;i<pw.length;i++){ h = ((h<<5)-h)+pw.charCodeAt(i); h|=0; }
+  return h.toString(36);
+}
+
+function checkPassword(){
+  const pw = document.getElementById('pwInput').value;
+  const stored = DB.get('teacherPwHash');
+  const err = document.getElementById('pwError');
+
+  if(!stored){
+    // No password set yet — show hint
+    document.getElementById('pwSetupHint').style.display='block';
+    err.style.display='none';
+    return;
+  }
+
+  if(hashPassword(pw) === stored){
+    DB.set('sessionAuth', Date.now());
+    document.getElementById('password-screen').style.display='none';
+    document.getElementById('teacher-interface').style.display='block';
+    err.style.display='none';
+    // Focus on first tab
+  } else {
+    err.style.display='block';
+    document.getElementById('pwInput').value='';
+    document.getElementById('pwInput').focus();
+  }
+}
+
+function skipPasswordForSetup(){
+  // Allow entering only if no password is set
+  const stored = DB.get('teacherPwHash');
+  if(stored) return;
+  DB.set('sessionAuth', Date.now());
+  document.getElementById('password-screen').style.display='none';
+  document.getElementById('teacher-interface').style.display='block';
+  switchTab('tab-settings');
+  // Scroll to password section
+  setTimeout(()=>{
+    const el = document.querySelector('#tab-settings .card');
+    if(el) el.scrollIntoView({behavior:'smooth'});
+  }, 100);
+}
+
+function savePassword(){
+  const pw = document.getElementById('newPw').value;
+  const pw2 = document.getElementById('confirmPw').value;
+  const msg = document.getElementById('pwSaveMsg');
+  if(pw.length < 4){ msg.innerHTML='<span style="color:var(--coral)">密碼至少需要 4 碼</span>'; return; }
+  if(pw !== pw2){ msg.innerHTML='<span style="color:var(--coral)">兩次輸入的密碼不一致</span>'; return; }
+  DB.set('teacherPwHash', hashPassword(pw));
+  document.getElementById('newPw').value='';
+  document.getElementById('confirmPw').value='';
+  msg.innerHTML='<span style="color:var(--teal-mid)">✅ 密碼已儲存！下次進入系統時將需要輸入密碼。</span>';
+}
+
+function clearPassword(){
+  if(!confirm('確定移除密碼？移除後任何人都能進入老師端。')) return;
+  DB.del('teacherPwHash');
+  DB.del('sessionAuth');
+  document.getElementById('pwSaveMsg').innerHTML='<span style="color:var(--text3)">密碼已移除</span>';
+}
+
+function isAuthenticated(){
+  const auth = DB.get('sessionAuth');
+  if(!auth) return false;
+  // Session valid for 12 hours
+  return (Date.now() - auth) < 12 * 60 * 60 * 1000;
+}
+
+// ══════════════════════════════════════════════
+// WEEK SETTINGS
+// ══════════════════════════════════════════════
+function generateWeeks(){
+  const startVal = document.getElementById('semesterStart').value;
+  if(!startVal){ alert('請選擇第一週上課日期'); return; }
+  const total = parseInt(document.getElementById('totalWeeks').value);
+  const start = new Date(startVal);
+  const weeks = [];
+  for(let i=0;i<total;i++){
+    const d = new Date(start);
+    d.setDate(d.getDate() + i*7);
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    weeks.push({ n:i+1, date:mm+'/'+dd, label:'', skip:false });
+  }
+  renderWeekEditGrid(weeks);
+  document.getElementById('weekEditGrid').style.display='block';
+}
+
+function renderWeekEditGrid(weeks){
+  const body = document.getElementById('weekEditBody');
+  body.innerHTML = weeks.map((w,i) => `
+    <tr id="weRow-${i}">
+      <td style="font-weight:700;color:var(--purple)">W${w.n}</td>
+      <td><input type="date" id="we-date-${i}" value="${dateToInput(w.date)}" style="padding:6px 8px;font-size:12px" /></td>
+      <td><input type="text" id="we-label-${i}" value="${w.label||''}" placeholder="例：期中報告、停課補課..." style="padding:6px 8px;font-size:12px" /></td>
+      <td style="text-align:center"><input type="checkbox" id="we-skip-${i}" ${w.skip?'checked':''} onchange="toggleSkipRow(${i})" /></td>
+    </tr>
+  `).join('');
+  // store count for save
+  body.dataset.count = weeks.length;
+}
+
+function dateToInput(dateStr){
+  // dateStr is MM/DD, need YYYY-MM-DD
+  if(!dateStr || dateStr==='未設定' || dateStr==='—') return '';
+  const startVal = document.getElementById('semesterStart').value;
+  if(!startVal) return '';
+  const year = startVal.slice(0,4);
+  return year + '-' + dateStr.replace('/','-');
+}
+
+function toggleSkipRow(i){
+  const skip = document.getElementById('we-skip-'+i).checked;
+  document.getElementById('weRow-'+i).style.opacity = skip ? '0.4' : '1';
+}
+
+function saveWeeks(){
+  const body = document.getElementById('weekEditBody');
+  const count = parseInt(body.dataset.count||18);
+  const weeks = [];
+  for(let i=0;i<count;i++){
+    const dateInput = document.getElementById('we-date-'+i);
+    const labelInput = document.getElementById('we-label-'+i);
+    const skipInput = document.getElementById('we-skip-'+i);
+    if(!dateInput) break;
+    const dateVal = dateInput.value; // YYYY-MM-DD
+    let dateDisplay = '未設定';
+    if(dateVal){
+      const parts = dateVal.split('-');
+      dateDisplay = parts[1]+'/'+parts[2];
+    }
+    weeks.push({
+      n: i+1,
+      date: dateDisplay,
+      label: labelInput ? labelInput.value.trim() : '',
+      skip: skipInput ? skipInput.checked : false
+    });
+  }
+  DB.set('weeks', weeks);
+  buildWeekGrid();
+  buildRecordWeekSelect();
+  alert('週次設定已儲存！共 '+weeks.length+' 週');
+}
+
+function resetWeeks(){
+  if(!confirm('確定還原為預設（空白）週次？')) return;
+  DB.del('weeks');
+  document.getElementById('weekEditGrid').style.display='none';
+  buildWeekGrid();
+  buildRecordWeekSelect();
+}
+
+function loadWeekSettings(){
+  const weeks = DB.get('weeks');
+  if(weeks && weeks.length>0){
+    renderWeekEditGrid(weeks);
+    document.getElementById('weekEditGrid').style.display='block';
+    document.getElementById('totalWeeks').value = weeks.length;
+  }
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+function init(){
+  const params = new URLSearchParams(location.search);
+  const token = params.get('t');
+  const week = params.get('w');
+
+  if(token && week){
+    // Student mode
+    isStudentMode = true;
+    document.getElementById('teacher-interface').style.display='none';
+    document.getElementById('student-interface').style.display='block';
+    studentTokenData = { token, week: parseInt(week) };
+    initStudentMode(token, parseInt(week));
+  } else {
+    // Teacher mode — check password
+    const hasPw = DB.get('teacherPwHash');
+    if(hasPw && !isAuthenticated()){
+      document.getElementById('password-screen').style.display='block';
+      document.getElementById('teacher-interface').style.display='none';
+    } else if(!hasPw){
+      // No password set yet — show password screen with setup hint
+      document.getElementById('password-screen').style.display='block';
+      document.getElementById('teacher-interface').style.display='none';
+      document.getElementById('pwSetupHint').style.display='block';
+    } else {
+      document.getElementById('teacher-interface').style.display='block';
+    }
+    loadRoster();
+    loadWeekSettings();
+    buildWeekGrid();
+    buildRecordWeekSelect();
+    initGasCode();
+    const savedUrl = DB.get('gasUrl');
+    if(savedUrl) document.getElementById('gasUrl').value = savedUrl;
+  }
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: WEEK GRID
+// ══════════════════════════════════════════════
+function buildWeekGrid(){
+  const grid = document.getElementById('weekGrid');
+  grid.innerHTML = getWEEKS().map(w => `
+    <div class="week-chip ${w.skip?'week-skip':''}" onclick="selectWeek(${w.n})" id="wchip-${w.n}">
+      <span class="wk-num">W${w.n}</span>
+      <span class="wk-date">${w.date}</span>
+      ${w.label?`<span class="wk-label">${w.label}</span>`:''}
+    </div>
+  `).join('');
+}
+
+function selectWeek(n){
+  currentWeek = n;
+  document.querySelectorAll('.week-chip').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('wchip-'+n).classList.add('selected');
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: SESSION / QR
+// ══════════════════════════════════════════════
+function generateToken(){
+  return Math.random().toString(36).slice(2,8).toUpperCase() + Date.now().toString(36).slice(-4).toUpperCase();
+}
+
+function getStudentUrl(token, week){
+  const base = location.href.split('?')[0];
+  return `${base}?t=${token}&w=${week}`;
+}
+
+function startSession(){
+  if(!currentWeek){ alert('請先選擇週別'); return; }
+  const q = document.getElementById('questionInput').value.trim();
+  const a = document.getElementById('answerInput').value.trim();
+  if(!q || !a){ alert('請輸入當堂問題與答案'); return; }
+
+  sessionQuestion = q;
+  sessionAnswer = a.toLowerCase();
+
+  // Store session on server-side via DB for student to read
+  document.getElementById('stopBtn').style.display='inline-flex';
+  document.getElementById('sessionInfo').textContent = `第 ${currentWeek} 週 (${getWEEKS()[currentWeek-1].date}) 點名進行中`;
+  document.getElementById('sessionInfo').className = 'alert alert-success';
+
+  // Save session config so student page can validate
+  DB.set('session', { week: currentWeek, question: q, answer: sessionAnswer, active: true });
+
+  rotateQR();
+  qrInterval = setInterval(rotateQR, 60000);
+  startTimer();
+  loadLiveList();
+  setInterval(loadLiveList, 5000);
+}
+
+function rotateQR(){
+  sessionToken = generateToken();
+  DB.set('currentToken', { token: sessionToken, ts: Date.now() });
+
+  const url = getStudentUrl(sessionToken, currentWeek);
+
+  const qrDiv = document.getElementById('qrcode');
+  qrDiv.innerHTML = '';
+  new QRCode(qrDiv, { text: url, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M });
+
+  document.getElementById('qrTokenDisplay').textContent = 'Token: ' + sessionToken;
+  timerSec = 60;
+}
+
+function startTimer(){
+  clearInterval(timerInterval);
+  timerSec = 60;
+  timerInterval = setInterval(()=>{
+    timerSec--;
+    const pct = (timerSec/60)*100;
+    document.getElementById('qrTimerFill').style.width = pct+'%';
+    document.getElementById('qrTimer').textContent = `${timerSec} 秒後更新`;
+    if(timerSec <= 0){ timerSec = 60; }
+  }, 1000);
+}
+
+function stopSession(){
+  clearInterval(qrInterval);
+  clearInterval(timerInterval);
+  DB.set('session', { active: false });
+  document.getElementById('stopBtn').style.display='none';
+  document.getElementById('sessionInfo').textContent = '點名已結束';
+  document.getElementById('sessionInfo').className = 'alert alert-info';
+  document.getElementById('qrTimer').textContent = '點名已結束';
+  document.getElementById('qrcode').innerHTML = '';
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: LIVE LIST
+// ══════════════════════════════════════════════
+function loadLiveList(){
+  if(!currentWeek) return;
+  const records = getWeekRecords(currentWeek);
+  const container = document.getElementById('liveList');
+  const count = document.getElementById('liveCount');
+
+  const present = records.filter(r=>r.status!=='absent');
+  count.textContent = `${present.length} / ${roster.length} 人`;
+
+  if(present.length === 0){
+    container.innerHTML = '<p class="text-muted">尚無人簽到</p>';
+    return;
+  }
+
+  container.innerHTML = `<table class="tbl">
+    <thead><tr><th>學號</th><th>姓名</th><th>時間</th><th>方式</th></tr></thead>
+    <tbody>${present.map(r=>`
+      <tr>
+        <td>${r.id}</td>
+        <td><strong>${r.name}</strong></td>
+        <td>${r.time||'—'}</td>
+        <td><span class="badge ${r.status==='manual'?'badge-manual':'badge-present'}">${r.status==='manual'?'手動':'掃碼'}</span></td>
+      </tr>
+    `).join('')}</tbody>
+  </table>`;
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: MANUAL
+// ══════════════════════════════════════════════
+function searchStudent(){
+  const q = document.getElementById('manualSearch').value.trim().toLowerCase();
+  const container = document.getElementById('manualResults');
+  if(!q){ container.innerHTML=''; return; }
+  if(!currentWeek){ container.innerHTML='<p class="text-muted">請先開始點名</p>'; return; }
+
+  const matches = roster.filter(s =>
+    s.id.toLowerCase().includes(q) || s.name.includes(q)
+  );
+  if(matches.length===0){ container.innerHTML='<p class="text-muted">找不到學生</p>'; return; }
+
+  const records = getWeekRecords(currentWeek);
+  container.innerHTML = matches.map(s=>{
+    const existing = records.find(r=>r.id===s.id);
+    const signed = existing && existing.status !== 'absent';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span>${s.id} &nbsp;<strong>${s.name}</strong></span>
+      ${signed
+        ? `<span class="badge badge-present">已簽到</span>`
+        : `<button class="btn btn-teal btn-sm" onclick="manualSign('${s.id}','${s.name}')">補填出席</button>`
+      }
+    </div>`;
+  }).join('');
+}
+
+function manualSign(id, name){
+  if(!currentWeek){ alert('請先選擇週別'); return; }
+  saveRecord({ id, name, week: currentWeek, status:'manual', time: now(), device:'manual' });
+  syncToSheets({ id, name, week: currentWeek, status:'手動補填', time: now() });
+  document.getElementById('manualSearch').value='';
+  document.getElementById('manualResults').innerHTML='';
+  loadLiveList();
+  alert(`已為 ${name} 手動補填出席！`);
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: RECORDS TAB
+// ══════════════════════════════════════════════
+function buildRecordWeekSelect(){
+  const sel = document.getElementById('recordWeekSelect');
+  getWEEKS().forEach(w=>{
+    const opt = document.createElement('option');
+    opt.value = w.n;
+    opt.textContent = `第 ${w.n} 週（${w.date}）`;
+    sel.appendChild(opt);
+  });
+}
+
+function loadRecords(){
+  const week = parseInt(document.getElementById('recordWeekSelect').value);
+  if(!week) return;
+
+  const records = getWeekRecords(week);
+  const statsDiv = document.getElementById('recordStats');
+  statsDiv.style.display = 'grid';
+
+  // Build full list with absents
+  const full = roster.map(s=>{
+    const r = records.find(x=>x.id===s.id);
+    return r ? r : { id:s.id, name:s.name, status:'absent', time:'—', device:'—' };
+  });
+
+  const present = full.filter(r=>r.status!=='absent');
+  const manual = full.filter(r=>r.status==='manual');
+  const absent = full.filter(r=>r.status==='absent');
+
+  document.getElementById('statTotal').textContent = full.length;
+  document.getElementById('statPresent').textContent = present.length;
+  document.getElementById('statAbsent').textContent = absent.length;
+  document.getElementById('statManual').textContent = manual.length;
+
+  document.getElementById('recordTable').innerHTML = `
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>#</th><th>學號</th><th>姓名</th><th>狀態</th><th>時間</th><th>方式</th></tr></thead>
+      <tbody>${full.map((r,i)=>`
+        <tr>
+          <td>${i+1}</td>
+          <td>${r.id}</td>
+          <td><strong>${r.name}</strong></td>
+          <td><span class="badge ${r.status==='absent'?'badge-absent':r.status==='manual'?'badge-manual':'badge-present'}">
+            ${r.status==='absent'?'缺席':r.status==='manual'?'手動補填':'出席'}
+          </span></td>
+          <td>${r.time||'—'}</td>
+          <td>${r.device||'—'}</td>
+        </tr>
+      `).join('')}</tbody>
+    </table>
+    </div>
+  `;
+}
+
+function exportCSV(){
+  const week = parseInt(document.getElementById('recordWeekSelect').value);
+  if(!week){ alert('請選擇週別'); return; }
+  const wInfo = getWEEKS()[week-1];
+  const records = getWeekRecords(week);
+  const full = roster.map(s=>{
+    const r = records.find(x=>x.id===s.id);
+    return r ? r : { id:s.id, name:s.name, status:'absent', time:'', device:'' };
+  });
+
+  let csv = '學號,姓名,出席狀態,簽到時間,方式\n';
+  full.forEach(r=>{
+    const status = r.status==='absent'?'缺席':r.status==='manual'?'手動補填':'出席';
+    csv += `${r.id},${r.name},${status},${r.time||''},${r.device||''}\n`;
+  });
+  downloadFile(`出席紀錄_W${week}_${wInfo.date.replace('/','')}.csv`, csv, 'text/csv;charset=utf-8;');
+}
+
+function exportAllCSV(){
+  let csv = '週次,日期,學號,姓名,出席狀態,簽到時間\n';
+  getWEEKS().forEach(w=>{
+    const records = getWeekRecords(w.n);
+    roster.forEach(s=>{
+      const r = records.find(x=>x.id===s.id);
+      const status = !r ? '缺席' : r.status==='manual' ? '手動補填' : '出席';
+      const time = r ? (r.time||'') : '';
+      csv += `第${w.n}週,${w.date},${s.id},${s.name},${status},${time}\n`;
+    });
+  });
+  downloadFile('出席紀錄_全學期.csv', csv, 'text/csv;charset=utf-8;');
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: ROSTER
+// ══════════════════════════════════════════════
+function importCSV(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const newRoster = [];
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(',').map(c=>c.trim().replace(/"/g,''));
+      if(cols.length>=2 && cols[0] && cols[1]){
+        newRoster.push({ id: cols[0], name: cols[1] });
+      }
+    }
+    if(newRoster.length===0){ alert('找不到有效資料，請確認格式'); return; }
+    roster = newRoster;
+    DB.set('roster', roster);
+    renderRoster();
+    alert(`已匯入 ${roster.length} 位學生！`);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function loadRoster(){
+  roster = DB.get('roster') || [];
+  if(roster.length > 0) renderRoster();
+}
+
+function renderRoster(){
+  document.getElementById('rosterCard').style.display='block';
+  document.getElementById('rosterCount').textContent = `共 ${roster.length} 人`;
+  document.getElementById('rosterBody').innerHTML = roster.map((s,i)=>`
+    <tr>
+      <td>${i+1}</td>
+      <td><code>${s.id}</code></td>
+      <td><strong>${s.name}</strong></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="removeStudent(${i})">移除</button></td>
+    </tr>
+  `).join('');
+}
+
+function removeStudent(i){
+  roster.splice(i,1);
+  DB.set('roster',roster);
+  renderRoster();
+}
+
+function clearRoster(){
+  if(!confirm('確定清除全部名單？')) return;
+  roster=[];
+  DB.del('roster');
+  document.getElementById('rosterCard').style.display='none';
+}
+
+function downloadTemplate(){
+  const csv = '學號,姓名\nB11234001,王小明\nB11234002,林小華\n';
+  downloadFile('學生名單範本.csv', csv, 'text/csv;charset=utf-8;');
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: SETTINGS / GAS
+// ══════════════════════════════════════════════
+function initGasCode(){
+  const code = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = JSON.parse(e.postData.contents);
+
+  // 如果是第一行，加入標題
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(['週次', '日期', '學號', '姓名', '狀態', '簽到時間', '裝置']);
+  }
+
+  sheet.appendRow([
+    data.week,
+    data.date,
+    data.id,
+    data.name,
+    data.status,
+    data.time,
+    data.device || ''
+  ]);
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ result: 'ok' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function doGet(e) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: 'online' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+  document.getElementById('gasCode').value = code;
+}
+
+function copyGasCode(){
+  navigator.clipboard.writeText(document.getElementById('gasCode').value);
+  alert('已複製！');
+}
+
+function saveGasUrl(){
+  const url = document.getElementById('gasUrl').value.trim();
+  if(!url){ alert('請輸入網址'); return; }
+  DB.set('gasUrl', url);
+  alert('設定已儲存！');
+}
+
+async function testGasConnection(){
+  const url = DB.get('gasUrl');
+  if(!url){ alert('請先儲存 GAS 網址'); return; }
+  const res = document.getElementById('gasTestResult');
+  res.innerHTML = '<span style="color:var(--text3)">測試中...</span>';
+  try{
+    const r = await fetch(url, { method:'GET', mode:'no-cors' });
+    res.innerHTML = '<span style="color:var(--teal)">✅ 連線正常</span>';
+  }catch(err){
+    res.innerHTML = '<span style="color:var(--coral)">❌ 連線失敗，請確認網址</span>';
+  }
+}
+
+async function syncToSheets(data){
+  const url = DB.get('gasUrl');
+  if(!url) return;
+  const wInfo = getWeekInfo(data.week||1);
+  try{
+    await fetch(url, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...data, date: wInfo ? wInfo.date : '' })
+    });
+  }catch(e){ console.warn('Sheets sync failed', e); }
+}
+
+// ══════════════════════════════════════════════
+// TEACHER: LOCAL BACKUP
+// ══════════════════════════════════════════════
+function exportLocalData(){
+  const data = {};
+  for(let i=0;i<localStorage.length;i++){
+    const k = localStorage.key(i);
+    if(k.startsWith('attn_')) data[k] = localStorage.getItem(k);
+  }
+  downloadFile('點名系統備份_'+today()+'.json', JSON.stringify(data,null,2), 'application/json');
+}
+
+function importLocalData(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const data = JSON.parse(ev.target.result);
+    Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+    alert('還原成功！請重新整理頁面');
+  };
+  reader.readAsText(file);
+}
+
+function clearAllData(){
+  if(!confirm('確定清除所有資料？此操作無法復原！')) return;
+  const keys = [];
+  for(let i=0;i<localStorage.length;i++){
+    if(localStorage.key(i).startsWith('attn_')) keys.push(localStorage.key(i));
+  }
+  keys.forEach(k=>localStorage.removeItem(k));
+  alert('已清除！');
+  location.reload();
+}
+
+// ══════════════════════════════════════════════
+// STUDENT MODE
+// ══════════════════════════════════════════════
+function initStudentMode(token, week){
+  // Check device lock
+  const deviceId = getDeviceId();
+  const lockedWeek = DB.get('device_locked_week');
+  if(lockedWeek === week){
+    showError('⚠️ 此裝置本週已完成簽到', '每台裝置每週只能簽到一次，如有問題請告知老師手動補填');
+    return;
+  }
+
+  // Get session
+  const session = DB.get('session');
+  if(!session || !session.active){
+    showError('❌ 點名尚未開始', '請等老師開啟點名，再掃描最新的 QR Code');
+    return;
+  }
+  if(session.week !== week){
+    showError('❌ QR Code 不符', '此 QR Code 與目前點名週別不符，請重新掃描');
+    return;
+  }
+
+  // Validate token
+  const currentToken = DB.get('currentToken');
+  if(!currentToken || currentToken.token !== token){
+    showError('⏰ QR Code 已失效', '此 QR Code 已過期，請請老師顯示最新的 QR Code 後重新掃描');
+    return;
+  }
+  if(Date.now() - currentToken.ts > 65000){
+    showError('⏰ QR Code 已失效', '此 QR Code 已過期超過 65 秒，請重新掃描最新的 QR Code');
+    return;
+  }
+
+  const wInfo = getWEEKS()[week-1];
+  document.getElementById('studentCourseInfo').textContent = `數位行銷傳播與實務・第 ${week} 週（${wInfo ? wInfo.date : ''}）`;
+  document.getElementById('questionLabel').textContent = session.question;
+  sessionQuestion = session.question;
+  sessionAnswer = session.answer;
+}
+
+function lookupStudent(){
+  const id = document.getElementById('studentId').value.trim().toUpperCase();
+  const err = document.getElementById('err1');
+  if(!id){ showStudentErr(err,'請輸入學號'); return; }
+
+  const student = roster.find(s => s.id.toUpperCase() === id);
+  if(!student){
+    showStudentErr(err,'找不到此學號，請確認輸入是否正確，或請老師手動補填');
+    return;
+  }
+
+  // Check already signed
+  const week = studentTokenData.week;
+  const records = getWeekRecords(week);
+  if(records.find(r=>r.id===student.id)){
+    showError('✅ 你已完成簽到', '此學號本週已記錄出席，無需重複簽到');
+    return;
+  }
+
+  document.getElementById('confirmName').textContent = student.name;
+  document.getElementById('confirmId').textContent = student.id;
+  goStep(2);
+}
+
+function submitAttendance(){
+  const ans = document.getElementById('studentAnswer').value.trim().toLowerCase();
+  const err = document.getElementById('err3');
+  if(!ans){ showStudentErr(err,'請輸入答案'); return; }
+  if(ans !== sessionAnswer){
+    showStudentErr(err,'答案不正確，請再想想！');
+    return;
+  }
+
+  const id = document.getElementById('studentId').value.trim().toUpperCase();
+  const student = roster.find(s=>s.id.toUpperCase()===id);
+  const week = studentTokenData.week;
+  const wInfo = getWEEKS()[week-1];
+  const timeStr = now();
+
+  // Save record
+  saveRecord({ id:student.id, name:student.name, week, status:'present', time:timeStr, device:getDeviceId().slice(0,8) });
+
+  // Lock device
+  DB.set('device_locked_week', week);
+
+  // Sync to Sheets
+  syncToSheets({ id:student.id, name:student.name, week:`第${week}週`, date:wInfo.date, status:'出席', time:timeStr, device:getDeviceId().slice(0,8) });
+
+  goStep(4);
+  document.getElementById('successInfo').textContent = `${student.name}・第 ${week} 週（${wInfo.date}）・${timeStr}`;
+}
+
+function goStep(n){
+  document.querySelectorAll('.student-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+}
+
+function showError(title, msg){
+  goStep(5);
+  document.getElementById('errorTitle').textContent = title;
+  document.getElementById('errorInfo').textContent = msg;
+}
+
+function showStudentErr(el, msg){
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(()=>el.style.display='none', 4000);
+}
+
+// ══════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════
+function getWeekRecords(week){
+  return DB.get('records_w'+week) || [];
+}
+
+function saveRecord(record){
+  const records = getWeekRecords(record.week);
+  const existing = records.findIndex(r=>r.id===record.id);
+  if(existing >= 0) records[existing] = record;
+  else records.push(record);
+  DB.set('records_w'+record.week, records);
+}
+
+function getDeviceId(){
+  let id = DB.get('deviceId');
+  if(!id){
+    id = [navigator.language, screen.width, screen.height,
+      Intl.DateTimeFormat().resolvedOptions().timeZone,
+      navigator.hardwareConcurrency, navigator.userAgent.slice(0,50)
+    ].join('|');
+    id = btoa(unescape(encodeURIComponent(id))).slice(0,32);
+    DB.set('deviceId', id);
+  }
+  return id;
+}
+
+function now(){
+  const d = new Date();
+  return d.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function today(){
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function downloadFile(name, content, type){
+  const blob = new Blob(['﻿'+content],{type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  a.click();
+}
+
+function switchTab(id){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// ── DRAG DROP ──
+const zone = document.getElementById('uploadZone');
+if(zone){
+  zone.addEventListener('dragover', e=>{ e.preventDefault(); zone.style.borderColor='var(--purple-mid)'; });
+  zone.addEventListener('dragleave', ()=>{ zone.style.borderColor=''; });
+  zone.addEventListener('drop', e=>{
+    e.preventDefault();
+    zone.style.borderColor='';
+    const file = e.dataTransfer.files[0];
+    if(file){ const dt = new DataTransfer(); dt.items.add(file); document.getElementById('csvFile').files=dt.files; importCSV({target:{files:dt.files}}); }
+  });
+}
+
+init();
+</script>
+
+</body></html>
