@@ -2313,9 +2313,11 @@ window.QRCode = {
     qr.addData(text);
     qr.make();
     var count = qr.getModuleCount();
-    var cellSize = Math.floor(size / count);
+    var quietZoneModules = 4; // standard QR quiet zone (required for reliable scanning)
+    var cellSize = Math.floor(size / (count + quietZoneModules * 2));
     if(cellSize < 1) cellSize = 1;
-    el.innerHTML = qr.createSvgTag(cellSize, 0);
+    var margin = cellSize * quietZoneModules;
+    el.innerHTML = qr.createSvgTag(cellSize, margin);
   }
 };
 
@@ -2659,7 +2661,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
       </div>
       <div style="display:flex;align-items:flex-end;gap:8px">
         <button class="btn btn-teal" onclick="exportCSV()">⬇️ 匯出 CSV</button>
-        <button class="btn btn-ghost" onclick="exportAllCSV()">📦 匯出全學期</button>
+        <button class="btn btn-ghost" onclick="exportAllCSV(event)">📦 匯出全學期</button>
       </div>
     </div>
   </div>
@@ -3160,9 +3162,11 @@ function init(){
     studentTokenData = { token, week: parseInt(week) };
     if(gasParam){
       try{
-        const decoded = decodeURIComponent(escape(atob(decodeURIComponent(gasParam))));
+        const decoded = decodeURIComponent(gasParam);
         DB.set('gasUrl', decoded);
-      }catch(e){ console.warn('Failed to decode GAS URL from QR link', e); }
+      }catch(e){
+        console.warn('Failed to decode GAS URL from QR link', e);
+      }
     }
     initStudentMode(token, parseInt(week));
   } else {
@@ -3204,7 +3208,7 @@ function generateToken(){
 function getStudentUrl(token, week){
   const base = location.href.split('?')[0];
   const gasUrl = DB.get('gasUrl') || '';
-  const encodedGas = gasUrl ? '&g=' + encodeURIComponent(btoa(unescape(encodeURIComponent(gasUrl)))) : '';
+  const encodedGas = gasUrl ? '&g=' + encodeURIComponent(gasUrl) : '';
   return `${base}?t=${token}&w=${week}${encodedGas}`;
 }
 
@@ -3304,7 +3308,7 @@ function buildQrPopupHtml(initialUrl, week, wInfo){
   lines.push('function drawQR(url){');
   lines.push('  var el = document.getElementById("qrcanvas");');
   lines.push('  el.innerHTML = "";');
-  lines.push('  window.QRCode.drawQrCode(el, url, 240);');
+  lines.push('  window.QRCode.drawQrCode(el, url, 400);');
   lines.push('}');
   lines.push('drawQR("' + initialUrl + '");');
   lines.push('lastToken = "' + initialUrl + '";');
@@ -3442,11 +3446,21 @@ function buildRecordWeekSelect(){
   });
 }
 
-function loadRecords(){
+async function loadRecords(){
   const week = parseInt(document.getElementById('recordWeekSelect').value);
   if(!week) return;
 
-  const records = getWeekRecords(week);
+  const container = document.getElementById('recordTable');
+  container.innerHTML = '<p class="text-muted">載入中...</p>';
+
+  const remote = await gasGet('records', { week });
+  const records = (remote && remote.records) ? remote.records : getWeekRecords(week);
+  if(remote && remote.records){
+    DB.set('records_w'+week, remote.records); // keep local cache fresh as fallback
+  } else {
+    container.innerHTML = '<p class="text-muted" style="color:var(--coral)">⚠️ 無法連線到 Google Sheets，顯示的是本機快取資料（可能不完整）</p>';
+  }
+
   const statsDiv = document.getElementById('recordStats');
   statsDiv.style.display = 'grid';
 
@@ -3456,7 +3470,7 @@ function loadRecords(){
   });
 
   const present = full.filter(r=>r.status!=='absent');
-  const manual = full.filter(r=>r.status==='manual');
+  const manual = full.filter(r=>r.status==='manual' || r.status==='手動補填');
   const absent = full.filter(r=>r.status==='absent');
 
   document.getElementById('statTotal').textContent = full.length;
@@ -3464,7 +3478,7 @@ function loadRecords(){
   document.getElementById('statAbsent').textContent = absent.length;
   document.getElementById('statManual').textContent = manual.length;
 
-  document.getElementById('recordTable').innerHTML = `
+  container.innerHTML = `
     <div style="overflow-x:auto">
     <table class="tbl">
       <thead><tr><th>#</th><th>學號</th><th>姓名</th><th>狀態</th><th>時間</th><th>方式</th></tr></thead>
@@ -3473,8 +3487,8 @@ function loadRecords(){
           <td>${i+1}</td>
           <td>${r.id}</td>
           <td><strong>${r.name}</strong></td>
-          <td><span class="badge ${r.status==='absent'?'badge-absent':r.status==='manual'?'badge-manual':'badge-present'}">
-            ${r.status==='absent'?'缺席':r.status==='manual'?'手動補填':'出席'}
+          <td><span class="badge ${r.status==='absent'?'badge-absent':(r.status==='manual'||r.status==='手動補填')?'badge-manual':'badge-present'}">
+            ${r.status==='absent'?'缺席':(r.status==='manual'||r.status==='手動補填')?'手動補填':'出席'}
           </span></td>
           <td>${r.time||'—'}</td>
           <td>${r.device||'—'}</td>
@@ -3485,11 +3499,12 @@ function loadRecords(){
   `;
 }
 
-function exportCSV(){
+async function exportCSV(){
   const week = parseInt(document.getElementById('recordWeekSelect').value);
   if(!week){ alert('請選擇週別'); return; }
   const wInfo = getWeekInfo(week);
-  const records = getWeekRecords(week);
+  const remote = await gasGet('records', { week });
+  const records = (remote && remote.records) ? remote.records : getWeekRecords(week);
   const full = roster.map(s=>{
     const r = records.find(x=>x.id===s.id);
     return r ? r : { id:s.id, name:s.name, status:'absent', time:'', device:'' };
@@ -3497,25 +3512,64 @@ function exportCSV(){
 
   let csv = '學號,姓名,出席狀態,簽到時間,方式\n';
   full.forEach(r=>{
-    const status = r.status==='absent'?'缺席':r.status==='manual'?'手動補填':'出席';
+    const status = r.status==='absent'?'缺席':(r.status==='manual'||r.status==='手動補填')?'手動補填':'出席';
     csv += `${r.id},${r.name},${status},${r.time||''},${r.device||''}\n`;
   });
   downloadFile(`出席紀錄_W${week}_${wInfo.date.replace('/','')}.csv`, csv, 'text/csv;charset=utf-8;');
 }
 
-function exportAllCSV(){
-  let csv = '週次,日期,學號,姓名,出席狀態,簽到時間\n';
-  const allWeeks = getWEEKS();
-  allWeeks.forEach(w=>{
-    const records = getWeekRecords(w.n);
-    roster.forEach(s=>{
-      const r = records.find(x=>x.id===s.id);
-      const status = !r ? '缺席' : r.status==='manual' ? '手動補填' : '出席';
-      const time = r ? (r.time||'') : '';
-      csv += `第${w.n}週,${w.date},${s.id},${s.name},${status},${time}\n`;
-    });
+async function exportAllCSV(evt){
+  const allWeeks = getWEEKS().filter(w => !w.skip);
+  if(allWeeks.length === 0){ alert('尚未設定週次'); return; }
+
+  const btn = evt ? evt.target : null;
+  const originalText = btn ? btn.textContent : '';
+  if(btn){ btn.textContent = '匯出中...'; btn.disabled = true; }
+
+  // Fetch all weeks' records from the shared backend in parallel
+  const results = await Promise.all(
+    allWeeks.map(w => gasGet('records', { week: w.n }))
+  );
+
+  if(btn){ btn.textContent = originalText; btn.disabled = false; }
+
+  // Build a lookup: week number -> { studentId -> record }
+  const byWeek = {};
+  allWeeks.forEach((w, i) => {
+    const records = (results[i] && results[i].records) ? results[i].records : getWeekRecords(w.n);
+    const map = {};
+    records.forEach(r => { map[r.id] = r; });
+    byWeek[w.n] = map;
   });
-  downloadFile('出席紀錄_全學期.csv', csv, 'text/csv;charset=utf-8;');
+
+  // Header row: 學號, 姓名, 第1週(日期), 第2週(日期), ...
+  const header = ['學號','姓名', ...allWeeks.map(w => `第${w.n}週(${w.date})`)];
+  let csv = header.join(',') + '\n';
+
+  // One row per student, one column per week
+  roster.forEach(s => {
+    const cells = [s.id, s.name];
+    allWeeks.forEach(w => {
+      const r = byWeek[w.n][s.id];
+      let mark;
+      if(!r) mark = '缺席';
+      else if(r.status==='manual' || r.status==='手動補填') mark = '補';
+      else mark = '出席';
+      cells.push(mark);
+    });
+    csv += cells.join(',') + '\n';
+  });
+
+  // Summary row: attendance rate per week (optional but useful)
+  const rateCells = ['','出席率'];
+  allWeeks.forEach(w => {
+    const total = roster.length || 1;
+    const presentCount = roster.filter(s => byWeek[w.n][s.id]).length;
+    rateCells.push(Math.round(presentCount/total*100) + '%');
+  });
+  csv += rateCells.join(',') + '\n';
+
+  downloadFile('出席紀錄_全學期_彙整.csv', csv, 'text/csv;charset=utf-8;');
 }
 
 // ══════════════════════════════════════════════
@@ -3993,7 +4047,7 @@ async function initStudentMode(token, week){
     // Student device has no gasUrl saved locally (normal — it's a fresh browser).
     // We still need SOME way to reach the backend. The URL itself must carry the
     // GAS endpoint, otherwise a student's fresh browser has no way to know it.
-    showError('❌ 系統設定不完整', '這台裝置找不到後端連線資訊，請聯絡老師確認 QR Code 網址是否正確');
+    showError('❌ 掃描讀取不完整', 'QR Code 掃描可能沒有讀取完整，請靠近一點，重新掃描最新的 QR Code。若持續發生，請聯絡老師確認網路連線');
     return;
   }
 
