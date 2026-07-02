@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0161)file:///C:/Users/wallace/Downloads/%E6%95%B8%E4%BD%8D%E8%A1%8C%E9%8A%B7%E5%82%B3%E6%92%AD%E8%88%87%E5%AF%A6%E5%8B%99_%E9%BB%9E%E5%90%8D%E7%B3%BB%E7%B5%B1_14.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>數位行銷傳播與實務・點名系統</title>
 <script>
@@ -2495,7 +2495,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
 <!-- ══════════════════════════════════════════════
      PASSWORD / SETUP SCREEN
 ═══════════════════════════════════════════════ -->
-<div id="password-screen" style="display:none">
+<div id="password-screen" style="display: block;">
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3C3489 0%,#7F77DD 100%);padding:24px">
   <div style="background:#fff;border-radius:16px;padding:40px 36px;max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2);text-align:center">
 
@@ -2506,35 +2506,29 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
       <p style="font-size:13px;color:#888884;margin-bottom:24px">這台裝置尚未設定連線，請貼上 Google Sheets 後端網址</p>
       <div style="margin-bottom:16px;text-align:left">
         <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">Google Apps Script 網址</label>
-        <input type="text" id="authGasUrlInput" placeholder="https://script.google.com/macros/s/..."
-          style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:13px;outline:none;font-family:inherit" />
+        <input type="text" id="authGasUrlInput" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:13px;outline:none;font-family:inherit">
       </div>
       <div id="authUrlError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none"></div>
-      <button onclick="connectGasUrl()"
-        style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+      <button onclick="connectGasUrl()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
         連線 →
       </button>
     </div>
 
     <!-- Stage 1: First-time password setup (only if backend confirms no password ever set) -->
-    <div id="authStageSetup" style="display:none">
+    <div id="authStageSetup" style="display: block;">
       <div style="font-size:40px;margin-bottom:12px">🆕</div>
       <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">設定教師密碼</h2>
       <p style="font-size:13px;color:#888884;margin-bottom:24px">尚未設定密碼，請設定一組密碼（至少 4 碼）</p>
       <div style="margin-bottom:12px;text-align:left">
         <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">新密碼</label>
-        <input type="password" id="setupPwInput" placeholder="至少 4 碼"
-          style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" />
+        <input type="password" id="setupPwInput" placeholder="至少 4 碼" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit">
       </div>
       <div style="margin-bottom:16px;text-align:left">
         <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">確認密碼</label>
-        <input type="password" id="setupPwConfirm" placeholder="再輸入一次"
-          style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit"
-          onkeydown="if(event.key==='Enter')submitSetupPassword()" />
+        <input type="password" id="setupPwConfirm" placeholder="再輸入一次" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" onkeydown="if(event.key===&#39;Enter&#39;)submitSetupPassword()">
       </div>
       <div id="authSetupError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none"></div>
-      <button onclick="submitSetupPassword()"
-        style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+      <button onclick="submitSetupPassword()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
         設定密碼並進入 →
       </button>
     </div>
@@ -2546,34 +2540,28 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
       <p style="font-size:13px;color:#888884;margin-bottom:24px">請輸入教師密碼以繼續</p>
       <div style="margin-bottom:16px;text-align:left">
         <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">密碼</label>
-        <input type="password" id="pwInput" placeholder="輸入密碼"
-          style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit"
-          onkeydown="if(event.key==='Enter')checkPassword()" />
+        <input type="password" id="pwInput" placeholder="輸入密碼" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" onkeydown="if(event.key===&#39;Enter&#39;)checkPassword()">
       </div>
       <div id="pwError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
-      <button id="loginBtn" onclick="checkPassword()"
-        style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+      <button id="loginBtn" onclick="checkPassword()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
         進入系統 →
       </button>
     </div>
 
     <!-- Stage: loading / checking backend -->
-    <div id="authStageLoading">
+    <div id="authStageLoading" style="display: none;">
       <div style="font-size:40px;margin-bottom:12px">⏳</div>
       <p style="font-size:13px;color:#888884">連線中...</p>
     </div>
 
     <!-- Always-visible helper: view/copy Apps Script code without needing to log in -->
     <div style="margin-top:20px;padding-top:16px;border-top:1px solid #E5E3DC">
-      <button onclick="toggleAuthGasCode()" id="authGasCodeToggle"
-        style="background:none;border:none;color:#7F77DD;font-size:12px;font-weight:600;cursor:pointer;padding:4px">
+      <button onclick="toggleAuthGasCode()" id="authGasCodeToggle" style="background:none;border:none;color:#7F77DD;font-size:12px;font-weight:600;cursor:pointer;padding:4px">
         📋 還沒部署過？查看 / 複製 Apps Script 程式碼
       </button>
       <div id="authGasCodeBox" style="display:none;margin-top:10px;text-align:left">
-        <textarea id="authGasCode" readonly
-          style="width:100%;height:200px;font-family:monospace;font-size:10px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:10px;resize:vertical;border:none"></textarea>
-        <button onclick="copyAuthGasCode()"
-          style="margin-top:8px;padding:6px 14px;background:#EEEDFE;color:#3C3489;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
+        <textarea id="authGasCode" readonly="" style="width:100%;height:200px;font-family:monospace;font-size:10px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:10px;resize:vertical;border:none"></textarea>
+        <button onclick="copyAuthGasCode()" style="margin-top:8px;padding:6px 14px;background:#EEEDFE;color:#3C3489;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
           複製程式碼
         </button>
       </div>
@@ -2586,13 +2574,13 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
 <!-- ══════════════════════════════════════════════
      TEACHER INTERFACE
 ═══════════════════════════════════════════════ -->
-<div id="teacher-interface">
+<div id="teacher-interface" style="display: none;">
 <div class="tab-bar">
   <h1>🎓 點名系統</h1>
-  <button class="tab-btn active" onclick="switchTab('tab-qr')">📱 產生 QR Code</button>
-  <button class="tab-btn" onclick="switchTab('tab-records')">📊 出席紀錄</button>
-  <button class="tab-btn" onclick="switchTab('tab-roster')">👥 學生名單</button>
-  <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ 設定</button>
+  <button class="tab-btn active" onclick="switchTab(&#39;tab-qr&#39;)">📱 產生 QR Code</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-records&#39;)">📊 出席紀錄</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-roster&#39;)">👥 學生名單</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-settings&#39;)">⚙️ 設定</button>
 </div>
 
 <!-- ── TAB: QR Code ── -->
@@ -2605,11 +2593,11 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
         <div class="week-grid" id="weekGrid"></div>
         <div class="form-group">
           <label>當堂問題（學生掃碼後需回答才能完成簽到）</label>
-          <input type="text" id="questionInput" placeholder="例：今天講到哪個廣告模型的縮寫？" />
+          <input type="text" id="questionInput" placeholder="例：今天講到哪個廣告模型的縮寫？">
         </div>
         <div class="form-group">
           <label>正確答案（不分大小寫）</label>
-          <input type="text" id="answerInput" placeholder="例：AIDA" />
+          <input type="text" id="answerInput" placeholder="例：AIDA">
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="startSession()">🚀 開始點名</button>
@@ -2623,7 +2611,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
         <hr class="divider">
         <div class="card-title" style="margin-bottom:12px"><span>✏️</span>手動補填</div>
         <div class="manual-search">
-          <input type="text" id="manualSearch" placeholder="輸入學號或姓名搜尋" oninput="searchStudent()" />
+          <input type="text" id="manualSearch" placeholder="輸入學號或姓名搜尋" oninput="searchStudent()">
         </div>
         <div id="manualResults"></div>
       </div>
@@ -2683,7 +2671,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
   <div class="card">
     <div class="card-title"><span>👥</span>學生名單管理</div>
     <div class="alert alert-info">CSV 格式：第一欄為學號、第二欄為姓名，第一行為標題列（學號,姓名）</div>
-    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvFile').click()">
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById(&#39;csvFile&#39;).click()">
       <div style="font-size:32px">📂</div>
       <p>點擊上傳 CSV 名單檔案</p>
       <p>或拖曳檔案至此</p>
@@ -2717,14 +2705,14 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="form-row">
       <div class="form-group" style="margin:0">
         <label>第一週上課日期</label>
-        <input type="date" id="semesterStart" />
+        <input type="date" id="semesterStart">
       </div>
       <div class="form-group" style="margin:0">
         <label>總週數</label>
         <select id="totalWeeks">
           <option value="14">14 週</option>
           <option value="16">16 週</option>
-          <option value="18" selected>18 週</option>
+          <option value="18" selected="">18 週</option>
         </select>
       </div>
     </div>
@@ -2753,16 +2741,16 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="form-row">
       <div class="form-group" style="margin:0">
         <label>目前密碼</label>
-        <input type="password" id="oldPw" placeholder="輸入目前密碼" />
+        <input type="password" id="oldPw" placeholder="輸入目前密碼">
       </div>
       <div class="form-group" style="margin:0"></div>
       <div class="form-group" style="margin:0">
         <label>新密碼</label>
-        <input type="password" id="newPw" placeholder="輸入新密碼（至少4碼）" />
+        <input type="password" id="newPw" placeholder="輸入新密碼（至少4碼）">
       </div>
       <div class="form-group" style="margin:0">
         <label>確認新密碼</label>
-        <input type="password" id="confirmPw" placeholder="再輸入一次" />
+        <input type="password" id="confirmPw" placeholder="再輸入一次">
       </div>
     </div>
     <div class="btn-row">
@@ -2776,7 +2764,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="alert alert-warn">需要先在 Google Sheets 建立 Apps Script 端點，詳見下方說明</div>
     <div class="form-group">
       <label>Google Apps Script 網址（Web App URL）</label>
-      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/..." />
+      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/...">
     </div>
     <button class="btn btn-primary" onclick="saveGasUrl()">💾 儲存設定</button>
     <button class="btn btn-ghost mt8" onclick="testGasConnection()" style="margin-left:8px">🔗 測試連線</button>
@@ -2795,7 +2783,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     </ol>
     <div style="margin-top:16px">
       <label>貼入 Apps Script 的程式碼：</label>
-      <textarea style="font-family:monospace;font-size:11px;height:280px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:14px;resize:vertical" readonly id="gasCode"></textarea>
+      <textarea style="font-family:monospace;font-size:11px;height:280px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:14px;resize:vertical" readonly="" id="gasCode"></textarea>
       <button class="btn btn-ghost btn-sm mt8" onclick="copyGasCode()">📋 複製程式碼</button>
     </div>
   </div>
@@ -2804,7 +2792,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="card-title"><span>🗄️</span>本機資料管理</div>
     <div class="btn-row">
       <button class="btn btn-ghost btn-sm" onclick="exportLocalData()">⬇️ 備份所有資料</button>
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importData').click()">⬆️ 還原備份</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById(&#39;importData&#39;).click()">⬆️ 還原備份</button>
       <button class="btn btn-coral btn-sm" onclick="clearAllData()">🗑️ 清除所有資料</button>
     </div>
     <input type="file" id="importData" accept=".json" style="display:none" onchange="importLocalData(event)">
@@ -2825,8 +2813,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="student-step active" id="step1">
       <div class="form-group">
         <label>請輸入你的學號</label>
-        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off"
-          oninput="this.value=this.value.toUpperCase()" />
+        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
       </div>
       <button class="btn btn-primary" style="width:100%" onclick="lookupStudent()">查詢 →</button>
       <div class="error-msg" id="err1"></div>
@@ -2849,7 +2836,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="student-step" id="step3">
       <div class="form-group">
         <label id="questionLabel" style="font-size:14px;color:var(--text);font-weight:700;line-height:1.5"></label>
-        <input type="text" id="studentAnswer" placeholder="輸入答案" autocomplete="off" style="margin-top:10px" />
+        <input type="text" id="studentAnswer" placeholder="輸入答案" autocomplete="off" style="margin-top:10px">
       </div>
       <button class="btn btn-primary" style="width:100%" onclick="submitAttendance()">✅ 完成簽到</button>
       <div class="error-msg" id="err3"></div>
@@ -3163,7 +3150,13 @@ function init(){
     if(gasParam){
       try{
         const decoded = decodeURIComponent(gasParam);
-        DB.set('gasUrl', decoded);
+        // If it already looks like a full URL, use it as-is (backward compatible
+        // with older QR codes). Otherwise treat it as a bare deployment ID and
+        // reconstruct the standard Apps Script Web App URL around it.
+        const resolvedUrl = decoded.includes('://')
+          ? decoded
+          : `https://script.google.com/macros/s/${decoded}/exec`;
+        DB.set('gasUrl', resolvedUrl);
       }catch(e){
         console.warn('Failed to decode GAS URL from QR link', e);
       }
@@ -3208,8 +3201,17 @@ function generateToken(){
 function getStudentUrl(token, week){
   const base = location.href.split('?')[0];
   const gasUrl = DB.get('gasUrl') || '';
-  const encodedGas = gasUrl ? '&g=' + encodeURIComponent(gasUrl) : '';
-  return `${base}?t=${token}&w=${week}${encodedGas}`;
+  let gParam = '';
+  if(gasUrl){
+    // Standard Apps Script Web App URLs look like:
+    //   https://script.google.com/macros/s/{DEPLOYMENT_ID}/exec
+    // The deployment ID itself only contains URL-safe characters (letters,
+    // digits, _ and -), so embedding just the ID avoids percent-encoding
+    // the whole URL and roughly halves the QR payload size.
+    const m = gasUrl.match(/^https:\/\/script\.google\.com\/macros\/s\/([A-Za-z0-9_-]+)\/exec\/?$/);
+    gParam = m ? ('&g=' + m[1]) : ('&g=' + encodeURIComponent(gasUrl));
+  }
+  return `${base}?t=${token}&w=${week}${gParam}`;
 }
 
 function startSession(){
@@ -3423,8 +3425,9 @@ function searchStudent(){
 
 function manualSign(id, name){
   if(!currentWeek){ alert('請先選擇週別'); return; }
+  const wInfo = getWeekInfo(currentWeek);
   saveRecord({ id, name, week: currentWeek, status:'manual', time: now(), device:'manual' });
-  syncToSheets({ id, name, week: currentWeek, status:'手動補填', time: now() });
+  syncToSheets({ id, name, week: currentWeek, date: wInfo.date, status:'手動補填', time: now() });
   document.getElementById('manualSearch').value='';
   document.getElementById('manualResults').innerHTML='';
   loadLiveList();
@@ -3542,26 +3545,29 @@ async function exportAllCSV(evt){
     byWeek[w.n] = map;
   });
 
-  // Header row: 學號, 姓名, 第1週(日期), 第2週(日期), ...
-  const header = ['學號','姓名', ...allWeeks.map(w => `第${w.n}週(${w.date})`)];
+  // Header row: 學號, 姓名, 第1週(日期), 第2週(日期), ..., 個人出席率
+  const header = ['學號','姓名', ...allWeeks.map(w => `第${w.n}週(${w.date})`), '個人出席率'];
   let csv = header.join(',') + '\n';
 
-  // One row per student, one column per week
+  // One row per student, one column per week, plus their overall rate
   roster.forEach(s => {
     const cells = [s.id, s.name];
+    let presentWeeks = 0;
     allWeeks.forEach(w => {
       const r = byWeek[w.n][s.id];
       let mark;
-      if(!r) mark = '缺席';
-      else if(r.status==='manual' || r.status==='手動補填') mark = '補';
-      else mark = '出席';
+      if(!r){ mark = '缺席'; }
+      else if(r.status==='manual' || r.status==='手動補填'){ mark = '補'; presentWeeks++; }
+      else { mark = '出席'; presentWeeks++; }
       cells.push(mark);
     });
+    const personalRate = allWeeks.length ? Math.round(presentWeeks/allWeeks.length*100) : 0;
+    cells.push(personalRate + '%');
     csv += cells.join(',') + '\n';
   });
 
-  // Summary row: attendance rate per week (optional but useful)
-  const rateCells = ['','出席率'];
+  // Summary row: attendance rate per week (column-wise), blank under 個人出席率
+  const rateCells = ['','當週出席率'];
   allWeeks.forEach(w => {
     const total = roster.length || 1;
     const presentCount = roster.filter(s => byWeek[w.n][s.id]).length;
@@ -4139,7 +4145,8 @@ async function submitAttendance(){
   btn.disabled = true;
 
   const res = await gasPost('submitAttendance', {
-    week, id: student.id, answer: ans, token: studentTokenData.token, device: getDeviceId().slice(0,8)
+    week, id: student.id, answer: ans, token: studentTokenData.token,
+    device: getDeviceId().slice(0,8), date: wInfo ? wInfo.date : ''
   });
 
   btn.textContent = originalText;
@@ -4261,5 +4268,5 @@ if(zone){
 
 init();
 </script>
-</body>
-</html>
+
+</body></html>
