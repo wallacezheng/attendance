@@ -3282,6 +3282,21 @@ function openQrWindow(){
 
 function buildQrPopupHtml(initialUrl, week, wInfo){
   var weekLabel = '第 ' + week + ' 週・' + wInfo.date + (wInfo.label ? ' · ' + wInfo.label : '');
+  // Extract any extra query params beyond t/w (currently just "g", the
+  // shortened GAS deployment ID/URL) so the popup's own self-triggered
+  // rotation (pollForUpdate) can preserve them too. Without this, only the
+  // very first QR shown would carry g; every rotation afterwards would drop
+  // it and silently break the student flow.
+  var extraParams = '';
+  try{
+    var qIdx = initialUrl.indexOf('?');
+    if(qIdx > -1){
+      var qs = new URLSearchParams(initialUrl.slice(qIdx+1));
+      qs.delete('t'); qs.delete('w');
+      var rest = qs.toString();
+      if(rest) extraParams = '&' + rest;
+    }
+  }catch(e){}
   var lines = [];
   lines.push('<!DOCTYPE html>');
   lines.push('<html lang="zh-Hant"><head>');
@@ -3332,7 +3347,7 @@ function buildQrPopupHtml(initialUrl, week, wInfo){
   lines.push('    var raw = localStorage.getItem("attn_currentToken");');
   lines.push('    if(!raw) return;');
   lines.push('    var data = JSON.parse(raw);');
-  lines.push('    var newUrl = baseUrl + "?t=" + data.token + "&w=" + weekNum;');
+  lines.push('    var newUrl = baseUrl + "?t=" + data.token + "&w=" + weekNum + "' + extraParams + '";');
   lines.push('    if(newUrl !== lastToken){');
   lines.push('      lastToken = newUrl;');
   lines.push('      sec = 60;');
