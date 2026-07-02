@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-<meta charset="UTF-8">
+<!-- saved from url=(0161)file:///C:/Users/wallace/Downloads/%E6%95%B8%E4%BD%8D%E8%A1%8C%E9%8A%B7%E5%82%B3%E6%92%AD%E8%88%87%E5%AF%A6%E5%8B%99_%E9%BB%9E%E5%90%8D%E7%B3%BB%E7%B5%B1_10.html -->
+<html lang="zh-Hant"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>數位行銷傳播與實務・點名系統</title>
 <script>
@@ -2491,34 +2491,67 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
 <body>
 
 <!-- ══════════════════════════════════════════════
-     PASSWORD SCREEN
+     PASSWORD / SETUP SCREEN
 ═══════════════════════════════════════════════ -->
-<div id="password-screen" style="display:none">
+<div id="password-screen" style="display: block;">
 <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#3C3489 0%,#7F77DD 100%);padding:24px">
-  <div style="background:#fff;border-radius:16px;padding:40px 36px;max-width:380px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2);text-align:center">
-    <div style="font-size:40px;margin-bottom:12px">🔐</div>
-    <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">點名系統・教師端</h2>
-    <p style="font-size:13px;color:#888884;margin-bottom:24px">請輸入教師密碼以繼續</p>
-    <div style="margin-bottom:16px;text-align:left">
-      <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">密碼</label>
-      <input type="password" id="pwInput" placeholder="輸入密碼"
-        style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit"
-        onkeydown="if(event.key==='Enter')checkPassword()"
-        onfocus="this.style.borderColor='#7F77DD'"
-        onblur="this.style.borderColor='#E5E3DC'" />
-    </div>
-    <div id="pwError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
-    <button onclick="checkPassword()"
-      style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
-      進入系統 →
-    </button>
-    <div id="pwSetupHint" style="margin-top:16px;font-size:12px;color:#888884;display:none">
-      尚未設定密碼。請先至 <strong>設定頁籤 → 教師密碼</strong> 設定密碼。<br>
-      <button onclick="skipPasswordForSetup()"
-        style="margin-top:8px;padding:6px 16px;background:#EEEDFE;color:#3C3489;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
-        進入設定頁面
+  <div style="background:#fff;border-radius:16px;padding:40px 36px;max-width:400px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.2);text-align:center">
+
+    <!-- Stage 0: Enter GAS URL (only shown on a device that has none saved) -->
+    <div id="authStageUrl" style="display:none">
+      <div style="font-size:40px;margin-bottom:12px">🔗</div>
+      <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">連接點名系統</h2>
+      <p style="font-size:13px;color:#888884;margin-bottom:24px">這台裝置尚未設定連線，請貼上 Google Sheets 後端網址</p>
+      <div style="margin-bottom:16px;text-align:left">
+        <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">Google Apps Script 網址</label>
+        <input type="text" id="authGasUrlInput" placeholder="https://script.google.com/macros/s/..." style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:13px;outline:none;font-family:inherit">
+      </div>
+      <div id="authUrlError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none"></div>
+      <button onclick="connectGasUrl()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        連線 →
       </button>
     </div>
+
+    <!-- Stage 1: First-time password setup (only if backend confirms no password ever set) -->
+    <div id="authStageSetup" style="display: block;">
+      <div style="font-size:40px;margin-bottom:12px">🆕</div>
+      <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">設定教師密碼</h2>
+      <p style="font-size:13px;color:#888884;margin-bottom:24px">尚未設定密碼，請設定一組密碼（至少 4 碼）</p>
+      <div style="margin-bottom:12px;text-align:left">
+        <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">新密碼</label>
+        <input type="password" id="setupPwInput" placeholder="至少 4 碼" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit">
+      </div>
+      <div style="margin-bottom:16px;text-align:left">
+        <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">確認密碼</label>
+        <input type="password" id="setupPwConfirm" placeholder="再輸入一次" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" onkeydown="if(event.key===&#39;Enter&#39;)submitSetupPassword()">
+      </div>
+      <div id="authSetupError" style="color: rgb(113, 43, 19); font-size: 12px; margin-bottom: 12px; display: block;">密碼至少需要 4 碼</div>
+      <button onclick="submitSetupPassword()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        設定密碼並進入 →
+      </button>
+    </div>
+
+    <!-- Stage 2: Login (backend confirms a password already exists — no bypass) -->
+    <div id="authStageLogin" style="display:none">
+      <div style="font-size:40px;margin-bottom:12px">🔐</div>
+      <h2 style="font-size:20px;font-weight:800;color:#3C3489;margin-bottom:6px">點名系統・教師端</h2>
+      <p style="font-size:13px;color:#888884;margin-bottom:24px">請輸入教師密碼以繼續</p>
+      <div style="margin-bottom:16px;text-align:left">
+        <label style="display:block;font-size:12px;font-weight:600;color:#555552;margin-bottom:6px">密碼</label>
+        <input type="password" id="pwInput" placeholder="輸入密碼" style="width:100%;padding:12px 14px;border:1.5px solid #E5E3DC;border-radius:8px;font-size:15px;outline:none;font-family:inherit" onkeydown="if(event.key===&#39;Enter&#39;)checkPassword()">
+      </div>
+      <div id="pwError" style="color:#712B13;font-size:12px;margin-bottom:12px;display:none">密碼錯誤，請再試一次</div>
+      <button id="loginBtn" onclick="checkPassword()" style="width:100%;padding:12px;background:#3C3489;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit">
+        進入系統 →
+      </button>
+    </div>
+
+    <!-- Stage: loading / checking backend -->
+    <div id="authStageLoading" style="display: none;">
+      <div style="font-size:40px;margin-bottom:12px">⏳</div>
+      <p style="font-size:13px;color:#888884">連線中...</p>
+    </div>
+
   </div>
 </div>
 </div>
@@ -2526,13 +2559,13 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
 <!-- ══════════════════════════════════════════════
      TEACHER INTERFACE
 ═══════════════════════════════════════════════ -->
-<div id="teacher-interface">
+<div id="teacher-interface" style="display: none;">
 <div class="tab-bar">
   <h1>🎓 點名系統</h1>
-  <button class="tab-btn active" onclick="switchTab('tab-qr')">📱 產生 QR Code</button>
-  <button class="tab-btn" onclick="switchTab('tab-records')">📊 出席紀錄</button>
-  <button class="tab-btn" onclick="switchTab('tab-roster')">👥 學生名單</button>
-  <button class="tab-btn" onclick="switchTab('tab-settings')">⚙️ 設定</button>
+  <button class="tab-btn active" onclick="switchTab(&#39;tab-qr&#39;)">📱 產生 QR Code</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-records&#39;)">📊 出席紀錄</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-roster&#39;)">👥 學生名單</button>
+  <button class="tab-btn" onclick="switchTab(&#39;tab-settings&#39;)">⚙️ 設定</button>
 </div>
 
 <!-- ── TAB: QR Code ── -->
@@ -2545,11 +2578,11 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
         <div class="week-grid" id="weekGrid"></div>
         <div class="form-group">
           <label>當堂問題（學生掃碼後需回答才能完成簽到）</label>
-          <input type="text" id="questionInput" placeholder="例：今天講到哪個廣告模型的縮寫？" />
+          <input type="text" id="questionInput" placeholder="例：今天講到哪個廣告模型的縮寫？">
         </div>
         <div class="form-group">
           <label>正確答案（不分大小寫）</label>
-          <input type="text" id="answerInput" placeholder="例：AIDA" />
+          <input type="text" id="answerInput" placeholder="例：AIDA">
         </div>
         <div class="btn-row">
           <button class="btn btn-primary" onclick="startSession()">🚀 開始點名</button>
@@ -2563,7 +2596,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
         <hr class="divider">
         <div class="card-title" style="margin-bottom:12px"><span>✏️</span>手動補填</div>
         <div class="manual-search">
-          <input type="text" id="manualSearch" placeholder="輸入學號或姓名搜尋" oninput="searchStudent()" />
+          <input type="text" id="manualSearch" placeholder="輸入學號或姓名搜尋" oninput="searchStudent()">
         </div>
         <div id="manualResults"></div>
       </div>
@@ -2623,7 +2656,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
   <div class="card">
     <div class="card-title"><span>👥</span>學生名單管理</div>
     <div class="alert alert-info">CSV 格式：第一欄為學號、第二欄為姓名，第一行為標題列（學號,姓名）</div>
-    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('csvFile').click()">
+    <div class="upload-zone" id="uploadZone" onclick="document.getElementById(&#39;csvFile&#39;).click()">
       <div style="font-size:32px">📂</div>
       <p>點擊上傳 CSV 名單檔案</p>
       <p>或拖曳檔案至此</p>
@@ -2657,14 +2690,14 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="form-row">
       <div class="form-group" style="margin:0">
         <label>第一週上課日期</label>
-        <input type="date" id="semesterStart" />
+        <input type="date" id="semesterStart">
       </div>
       <div class="form-group" style="margin:0">
         <label>總週數</label>
         <select id="totalWeeks">
           <option value="14">14 週</option>
           <option value="16">16 週</option>
-          <option value="18" selected>18 週</option>
+          <option value="18" selected="">18 週</option>
         </select>
       </div>
     </div>
@@ -2688,21 +2721,25 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
   </div>
 
   <div class="card">
-    <div class="card-title"><span>🔐</span>教師密碼設定</div>
-    <p class="text-muted" style="margin-bottom:16px">設定進入老師端的密碼。學生掃 QR Code 進入的簽到頁不受影響。</p>
+    <div class="card-title"><span>🔐</span>變更教師密碼</div>
+    <p class="text-muted" style="margin-bottom:16px">密碼設定在 Google Sheets 後端，所有裝置共用同一組密碼。學生掃 QR Code 進入的簽到頁不受影響。</p>
     <div class="form-row">
       <div class="form-group" style="margin:0">
+        <label>目前密碼</label>
+        <input type="password" id="oldPw" placeholder="輸入目前密碼">
+      </div>
+      <div class="form-group" style="margin:0"></div>
+      <div class="form-group" style="margin:0">
         <label>新密碼</label>
-        <input type="password" id="newPw" placeholder="輸入新密碼（至少4碼）" />
+        <input type="password" id="newPw" placeholder="輸入新密碼（至少4碼）">
       </div>
       <div class="form-group" style="margin:0">
         <label>確認新密碼</label>
-        <input type="password" id="confirmPw" placeholder="再輸入一次" />
+        <input type="password" id="confirmPw" placeholder="再輸入一次">
       </div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="savePassword()">💾 儲存密碼</button>
-      <button class="btn btn-ghost" onclick="clearPassword()">🗑️ 移除密碼</button>
+      <button class="btn btn-primary" onclick="savePassword()">💾 變更密碼</button>
     </div>
     <div id="pwSaveMsg" class="mt8"></div>
   </div>
@@ -2712,7 +2749,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="alert alert-warn">需要先在 Google Sheets 建立 Apps Script 端點，詳見下方說明</div>
     <div class="form-group">
       <label>Google Apps Script 網址（Web App URL）</label>
-      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/..." />
+      <input type="text" id="gasUrl" placeholder="https://script.google.com/macros/s/...">
     </div>
     <button class="btn btn-primary" onclick="saveGasUrl()">💾 儲存設定</button>
     <button class="btn btn-ghost mt8" onclick="testGasConnection()" style="margin-left:8px">🔗 測試連線</button>
@@ -2731,7 +2768,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     </ol>
     <div style="margin-top:16px">
       <label>貼入 Apps Script 的程式碼：</label>
-      <textarea style="font-family:monospace;font-size:11px;height:280px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:14px;resize:vertical" readonly id="gasCode"></textarea>
+      <textarea style="font-family:monospace;font-size:11px;height:280px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:14px;resize:vertical" readonly="" id="gasCode"></textarea>
       <button class="btn btn-ghost btn-sm mt8" onclick="copyGasCode()">📋 複製程式碼</button>
     </div>
   </div>
@@ -2740,7 +2777,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="card-title"><span>🗄️</span>本機資料管理</div>
     <div class="btn-row">
       <button class="btn btn-ghost btn-sm" onclick="exportLocalData()">⬇️ 備份所有資料</button>
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importData').click()">⬆️ 還原備份</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById(&#39;importData&#39;).click()">⬆️ 還原備份</button>
       <button class="btn btn-coral btn-sm" onclick="clearAllData()">🗑️ 清除所有資料</button>
     </div>
     <input type="file" id="importData" accept=".json" style="display:none" onchange="importLocalData(event)">
@@ -2761,8 +2798,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="student-step active" id="step1">
       <div class="form-group">
         <label>請輸入你的學號</label>
-        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off"
-          oninput="this.value=this.value.toUpperCase()" />
+        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off" oninput="this.value=this.value.toUpperCase()">
       </div>
       <button class="btn btn-primary" style="width:100%" onclick="lookupStudent()">查詢 →</button>
       <div class="error-msg" id="err1"></div>
@@ -2785,7 +2821,7 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <div class="student-step" id="step3">
       <div class="form-group">
         <label id="questionLabel" style="font-size:14px;color:var(--text);font-weight:700;line-height:1.5"></label>
-        <input type="text" id="studentAnswer" placeholder="輸入答案" autocomplete="off" style="margin-top:10px" />
+        <input type="text" id="studentAnswer" placeholder="輸入答案" autocomplete="off" style="margin-top:10px">
       </div>
       <button class="btn btn-primary" style="width:100%" onclick="submitAttendance()">✅ 完成簽到</button>
       <div class="error-msg" id="err3"></div>
@@ -2848,70 +2884,126 @@ let studentTokenData = null;
 // ══════════════════════════════════════════════
 // PASSWORD
 // ══════════════════════════════════════════════
-function hashPassword(pw){
-  // Simple hash — good enough for classroom use
-  let h = 0;
-  for(let i=0;i<pw.length;i++){ h = ((h<<5)-h)+pw.charCodeAt(i); h|=0; }
-  return h.toString(36);
+// ══════════════════════════════════════════════
+// AUTH (backed by Google Sheets — shared across all devices)
+// ══════════════════════════════════════════════
+function showAuthStage(stage){
+  ['Url','Setup','Login','Loading'].forEach(s=>{
+    const el = document.getElementById('authStage'+s);
+    if(el) el.style.display = (s===stage) ? 'block' : 'none';
+  });
 }
 
-function checkPassword(){
-  const pw = document.getElementById('pwInput').value;
-  const stored = DB.get('teacherPwHash');
-  const err = document.getElementById('pwError');
-
-  if(!stored){
-    // No password set yet — show hint
-    document.getElementById('pwSetupHint').style.display='block';
-    err.style.display='none';
+async function runAuthFlow(){
+  showAuthStage('Loading');
+  const gasUrl = DB.get('gasUrl');
+  if(!gasUrl){
+    showAuthStage('Url');
     return;
   }
+  const auth = await gasGet('authStatus', {});
+  if(!auth){
+    showAuthStage('Url');
+    const err = document.getElementById('authUrlError');
+    err.textContent = '連線失敗，請確認網址是否正確（或確認部署權限為「任何人」）';
+    err.style.display = 'block';
+    document.getElementById('authGasUrlInput').value = gasUrl;
+    return;
+  }
+  if(!auth.hasPassword){
+    showAuthStage('Setup');
+    return;
+  }
+  if(isAuthenticated()){
+    enterTeacherInterface();
+    return;
+  }
+  showAuthStage('Login');
+}
 
-  if(hashPassword(pw) === stored){
+function enterTeacherInterface(){
+  document.getElementById('password-screen').style.display='none';
+  document.getElementById('teacher-interface').style.display='block';
+  loadRoster();
+  loadWeekSettings();
+  buildWeekGrid();
+  buildRecordWeekSelect();
+  const savedUrl = DB.get('gasUrl');
+  if(savedUrl) document.getElementById('gasUrl').value = savedUrl;
+}
+
+async function connectGasUrl(){
+  const url = document.getElementById('authGasUrlInput').value.trim();
+  const err = document.getElementById('authUrlError');
+  if(!url){ err.textContent='請輸入網址'; err.style.display='block'; return; }
+  DB.set('gasUrl', url);
+  err.style.display='none';
+  await runAuthFlow();
+}
+
+async function submitSetupPassword(){
+  const pw = document.getElementById('setupPwInput').value;
+  const pw2 = document.getElementById('setupPwConfirm').value;
+  const err = document.getElementById('authSetupError');
+  if(pw.length < 4){ err.textContent='密碼至少需要 4 碼'; err.style.display='block'; return; }
+  if(pw !== pw2){ err.textContent='兩次輸入的密碼不一致'; err.style.display='block'; return; }
+  const res = await gasPost('setupPassword', { password: pw });
+  if(res && res.success){
     DB.set('sessionAuth', Date.now());
-    document.getElementById('password-screen').style.display='none';
-    document.getElementById('teacher-interface').style.display='block';
     err.style.display='none';
-    // Focus on first tab
+    enterTeacherInterface();
+  } else if(res && res.reason === 'already_set'){
+    err.textContent='密碼已被設定過（可能剛被其他裝置設定），請改用登入';
+    err.style.display='block';
+    setTimeout(()=>showAuthStage('Login'), 1500);
   } else {
+    err.textContent='設定失敗，請確認網路連線';
+    err.style.display='block';
+  }
+}
+
+async function checkPassword(){
+  const pw = document.getElementById('pwInput').value;
+  const err = document.getElementById('pwError');
+  const btn = document.getElementById('loginBtn');
+  btn.textContent = '登入中...';
+  btn.disabled = true;
+  const res = await gasPost('login', { password: pw });
+  btn.textContent = '進入系統 →';
+  btn.disabled = false;
+
+  if(res && res.success){
+    DB.set('sessionAuth', Date.now());
+    err.style.display='none';
+    enterTeacherInterface();
+  } else {
+    const reason = res ? res.reason : null;
+    err.textContent = (reason === 'locked_out')
+      ? '嘗試次數過多，請 5 分鐘後再試'
+      : '密碼錯誤，請再試一次';
     err.style.display='block';
     document.getElementById('pwInput').value='';
     document.getElementById('pwInput').focus();
   }
 }
 
-function skipPasswordForSetup(){
-  // Allow entering only if no password is set
-  const stored = DB.get('teacherPwHash');
-  if(stored) return;
-  DB.set('sessionAuth', Date.now());
-  document.getElementById('password-screen').style.display='none';
-  document.getElementById('teacher-interface').style.display='block';
-  switchTab('tab-settings');
-  // Scroll to password section
-  setTimeout(()=>{
-    const el = document.querySelector('#tab-settings .card');
-    if(el) el.scrollIntoView({behavior:'smooth'});
-  }, 100);
-}
-
-function savePassword(){
+async function savePassword(){
+  const oldPw = document.getElementById('oldPw').value;
   const pw = document.getElementById('newPw').value;
   const pw2 = document.getElementById('confirmPw').value;
   const msg = document.getElementById('pwSaveMsg');
-  if(pw.length < 4){ msg.innerHTML='<span style="color:var(--coral)">密碼至少需要 4 碼</span>'; return; }
-  if(pw !== pw2){ msg.innerHTML='<span style="color:var(--coral)">兩次輸入的密碼不一致</span>'; return; }
-  DB.set('teacherPwHash', hashPassword(pw));
-  document.getElementById('newPw').value='';
-  document.getElementById('confirmPw').value='';
-  msg.innerHTML='<span style="color:var(--teal-mid)">✅ 密碼已儲存！下次進入系統時將需要輸入密碼。</span>';
-}
-
-function clearPassword(){
-  if(!confirm('確定移除密碼？移除後任何人都能進入老師端。')) return;
-  DB.del('teacherPwHash');
-  DB.del('sessionAuth');
-  document.getElementById('pwSaveMsg').innerHTML='<span style="color:var(--text3)">密碼已移除</span>';
+  if(!oldPw){ msg.innerHTML='<span style="color:var(--coral)">請輸入目前密碼</span>'; return; }
+  if(pw.length < 4){ msg.innerHTML='<span style="color:var(--coral)">新密碼至少需要 4 碼</span>'; return; }
+  if(pw !== pw2){ msg.innerHTML='<span style="color:var(--coral)">兩次輸入的新密碼不一致</span>'; return; }
+  const res = await gasPost('changePassword', { oldPassword: oldPw, newPassword: pw });
+  if(res && res.success){
+    document.getElementById('oldPw').value='';
+    document.getElementById('newPw').value='';
+    document.getElementById('confirmPw').value='';
+    msg.innerHTML='<span style="color:var(--teal-mid)">✅ 密碼已變更！所有裝置都需要重新輸入新密碼。</span>';
+  } else {
+    msg.innerHTML='<span style="color:var(--coral)">變更失敗，目前密碼不正確</span>';
+  }
 }
 
 function isAuthenticated(){
@@ -2969,7 +3061,7 @@ function toggleSkipRow(i){
   document.getElementById('weRow-'+i).style.opacity = skip ? '0.4' : '1';
 }
 
-function saveWeeks(){
+async function saveWeeks(){
   const body = document.getElementById('weekEditBody');
   const count = parseInt(body.dataset.count||18);
   const weeks = [];
@@ -2994,23 +3086,34 @@ function saveWeeks(){
   DB.set('weeks', weeks);
   buildWeekGrid();
   buildRecordWeekSelect();
-  alert('週次設定已儲存！共 '+weeks.length+' 週');
+  const res = await gasPost('setWeeks', { weeks });
+  if(res && res.result==='ok'){
+    alert('週次設定已儲存，並同步到 Google Sheets！共 '+weeks.length+' 週');
+  } else {
+    alert('週次設定已儲存（本機），但同步到 Google Sheets 失敗，請確認連線後重試');
+  }
 }
 
-function resetWeeks(){
-  if(!confirm('確定還原為預設（空白）週次？')) return;
+async function resetWeeks(){
+  if(!confirm('確定還原為預設（空白）週次？此操作會清除所有裝置上的週次設定。')) return;
   DB.del('weeks');
   document.getElementById('weekEditGrid').style.display='none';
   buildWeekGrid();
   buildRecordWeekSelect();
+  await gasPost('setWeeks', { weeks: [] });
 }
 
-function loadWeekSettings(){
-  const weeks = DB.get('weeks');
+async function loadWeekSettings(){
+  // Prefer remote (shared) weeks; fall back to local cache if offline
+  const remote = await gasGet('weeks', {});
+  let weeks = (remote && remote.weeks && remote.weeks.length>0) ? remote.weeks : DB.get('weeks');
   if(weeks && weeks.length>0){
+    DB.set('weeks', weeks); // keep local cache fresh
     renderWeekEditGrid(weeks);
     document.getElementById('weekEditGrid').style.display='block';
     document.getElementById('totalWeeks').value = weeks.length;
+    buildWeekGrid();
+    buildRecordWeekSelect();
   }
 }
 
@@ -3021,6 +3124,7 @@ function init(){
   const params = new URLSearchParams(location.search);
   const token = params.get('t');
   const week = params.get('w');
+  const gasParam = params.get('g');
 
   if(token && week){
     // Student mode
@@ -3028,28 +3132,19 @@ function init(){
     document.getElementById('teacher-interface').style.display='none';
     document.getElementById('student-interface').style.display='block';
     studentTokenData = { token, week: parseInt(week) };
+    if(gasParam){
+      try{
+        const decoded = decodeURIComponent(escape(atob(decodeURIComponent(gasParam))));
+        DB.set('gasUrl', decoded);
+      }catch(e){ console.warn('Failed to decode GAS URL from QR link', e); }
+    }
     initStudentMode(token, parseInt(week));
   } else {
-    // Teacher mode — check password
-    const hasPw = DB.get('teacherPwHash');
-    if(hasPw && !isAuthenticated()){
-      document.getElementById('password-screen').style.display='block';
-      document.getElementById('teacher-interface').style.display='none';
-    } else if(!hasPw){
-      // No password set yet — show password screen with setup hint
-      document.getElementById('password-screen').style.display='block';
-      document.getElementById('teacher-interface').style.display='none';
-      document.getElementById('pwSetupHint').style.display='block';
-    } else {
-      document.getElementById('teacher-interface').style.display='block';
-    }
-    loadRoster();
-    loadWeekSettings();
-    buildWeekGrid();
-    buildRecordWeekSelect();
+    // Teacher mode — always start hidden behind the auth screen
+    document.getElementById('teacher-interface').style.display='none';
+    document.getElementById('password-screen').style.display='block';
     initGasCode();
-    const savedUrl = DB.get('gasUrl');
-    if(savedUrl) document.getElementById('gasUrl').value = savedUrl;
+    runAuthFlow();
   }
 }
 
@@ -3082,7 +3177,9 @@ function generateToken(){
 
 function getStudentUrl(token, week){
   const base = location.href.split('?')[0];
-  return `${base}?t=${token}&w=${week}`;
+  const gasUrl = DB.get('gasUrl') || '';
+  const encodedGas = gasUrl ? '&g=' + encodeURIComponent(btoa(unescape(encodeURIComponent(gasUrl)))) : '';
+  return `${base}?t=${token}&w=${week}${encodedGas}`;
 }
 
 function startSession(){
@@ -3091,17 +3188,22 @@ function startSession(){
   const a = document.getElementById('answerInput').value.trim();
   if(!q || !a){ alert('請輸入當堂問題與答案'); return; }
 
+  const hasGas = !!DB.get('gasUrl');
+  if(!hasGas){
+    const proceed = confirm('⚠️ 尚未設定 Google Sheets 串接，學生用自己手機掃碼將無法完成簽到（因為手機讀不到老師電腦上的資料）。\n\n請先到「設定」頁面完成串接。\n\n仍要以本機測試模式繼續嗎？（僅適合老師自己測試流程）');
+    if(!proceed) return;
+  }
+
   sessionQuestion = q;
   sessionAnswer = a.toLowerCase();
 
-  // Store session on server-side via DB for student to read
   document.getElementById('stopBtn').style.display='inline-flex';
   document.getElementById('openQrBtn').style.display='flex';
   document.getElementById('sessionInfo').textContent = `第 ${currentWeek} 週 (${getWEEKS()[currentWeek-1].date}) 點名進行中`;
   document.getElementById('sessionInfo').className = 'alert alert-success';
 
-  // Save session config so student page can validate
   DB.set('session', { week: currentWeek, question: q, answer: sessionAnswer, active: true });
+  gasPost('setSession', { active:true, week:currentWeek, question:q, answer:sessionAnswer });
 
   rotateQR();
   qrInterval = setInterval(rotateQR, 60000);
@@ -3114,7 +3216,8 @@ function rotateQR(){
   sessionToken = generateToken();
   DB.set('currentToken', { token: sessionToken, ts: Date.now() });
   timerSec = 60;
-  // Notify popup window if open
+  gasPost('setToken', { token: sessionToken });
+  // Notify popup window if open (same-device convenience path; not required for cross-device)
   if(qrPopup && !qrPopup.closed){
     qrPopup.updateQR && qrPopup.updateQR(getStudentUrl(sessionToken, currentWeek));
   }
@@ -3130,6 +3233,7 @@ function openQrWindow(){
   qrPopup.document.write(popupHtml);
   qrPopup.document.close();
 }
+
 
 function buildQrPopupHtml(initialUrl, week, wInfo){
   var weekLabel = '第 ' + week + ' 週・' + wInfo.date + (wInfo.label ? ' · ' + wInfo.label : '');
@@ -3212,6 +3316,7 @@ function stopSession(){
   clearInterval(qrInterval);
   clearInterval(timerInterval);
   DB.set('session', { active: false });
+  gasPost('setSession', { active:false, week:currentWeek });
   document.getElementById('stopBtn').style.display='none';
   document.getElementById('openQrBtn').style.display='none';
   if(qrPopup && !qrPopup.closed) qrPopup.close();
@@ -3407,7 +3512,18 @@ function importCSV(event){
     roster = newRoster;
     DB.set('roster', roster);
     renderRoster();
-    alert(`已匯入 ${roster.length} 位學生！`);
+    const hasGas = !!DB.get('gasUrl');
+    if(hasGas){
+      gasPost('setRoster', { roster }).then(res=>{
+        if(res && res.result==='ok'){
+          alert(`已匯入 ${roster.length} 位學生，並同步到 Google Sheets！`);
+        } else {
+          alert(`已匯入 ${roster.length} 位學生（本機），但同步到 Google Sheets 失敗，請到「設定」確認連線`);
+        }
+      });
+    } else {
+      alert(`已匯入 ${roster.length} 位學生（本機）。❗ 尚未設定 Google Sheets 串接，學生用手機掃碼將無法驗證學號，請先到「設定」頁面完成串接`);
+    }
   };
   reader.readAsText(file, 'UTF-8');
 }
@@ -3449,35 +3565,286 @@ function downloadTemplate(){
 }
 
 function initGasCode(){
-  const code = `function doPost(e) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-  var data = JSON.parse(e.postData.contents);
+  const code = `// ============================================================
+// 點名系統 Google Apps Script 後端
+// 分頁：Attendance（出席紀錄）、Roster（學生名單）、State（設定與狀態，含密碼、週次、點名狀態）
+// ============================================================
 
-  // 如果是第一行，加入標題
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['週次', '日期', '學號', '姓名', '狀態', '簽到時間', '裝置']);
+function getSheet(name) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(name);
+  if (!sheet) {
+    sheet = ss.insertSheet(name);
+    if (name === 'Attendance') {
+      sheet.appendRow(['週次', '日期', '學號', '姓名', '狀態', '簽到時間', '裝置']);
+    } else if (name === 'Roster') {
+      sheet.appendRow(['學號', '姓名']);
+    } else if (name === 'State') {
+      sheet.appendRow(['key', 'value']);
+    }
   }
+  return sheet;
+}
 
-  sheet.appendRow([
-    data.week,
-    data.date,
-    data.id,
-    data.name,
-    data.status,
-    data.time,
-    data.device || ''
-  ]);
+function stateGet(key) {
+  var sheet = getSheet('State');
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === key) return data[i][1];
+  }
+  return null;
+}
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ result: 'ok' }))
+function stateSet(key, value) {
+  var sheet = getSheet('State');
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === key) {
+      sheet.getRange(i + 1, 2).setValue(value);
+      return;
+    }
+  }
+  sheet.appendRow([key, value]);
+}
+
+function sha256Hex(text) {
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, text, Utilities.Charset.UTF_8);
+  var hex = '';
+  for (var i = 0; i < bytes.length; i++) {
+    var b = (bytes[i] < 0) ? bytes[i] + 256 : bytes[i];
+    var h = b.toString(16);
+    if (h.length === 1) h = '0' + h;
+    hex += h;
+  }
+  return hex;
+}
+
+function jsonOut(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// ── Simple brute-force throttle for password attempts ──
+function checkLoginThrottle() {
+  var fails = Number(stateGet('pwFailCount') || 0);
+  var lastFail = Number(stateGet('pwFailTs') || 0);
+  if (fails >= 5 && (Date.now() - lastFail) < 5 * 60 * 1000) {
+    return false; // still locked out
+  }
+  if (fails >= 5 && (Date.now() - lastFail) >= 5 * 60 * 1000) {
+    stateSet('pwFailCount', '0'); // lockout window passed, reset
+  }
+  return true;
+}
+function recordLoginFailure() {
+  var fails = Number(stateGet('pwFailCount') || 0) + 1;
+  stateSet('pwFailCount', String(fails));
+  stateSet('pwFailTs', String(Date.now()));
+}
+function recordLoginSuccess() {
+  stateSet('pwFailCount', '0');
+}
+
 function doGet(e) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ status: 'online' }))
-    .setMimeType(ContentService.MimeType.JSON);
-}`;
+  var action = e.parameter.action || 'ping';
+
+  if (action === 'ping') {
+    return jsonOut({ status: 'online' });
+  }
+
+  if (action === 'authStatus') {
+    return jsonOut({ hasPassword: !!stateGet('pwHash') });
+  }
+
+  if (action === 'session') {
+    return jsonOut({
+      active: stateGet('active') === 'true',
+      week: stateGet('week') || '',
+      question: stateGet('question') || '',
+      token: stateGet('token') || '',
+      tokenTs: Number(stateGet('tokenTs') || 0)
+    });
+  }
+
+  if (action === 'roster') {
+    var sheet = getSheet('Roster');
+    var data = sheet.getDataRange().getValues();
+    var roster = [];
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0]) roster.push({ id: String(data[i][0]), name: String(data[i][1]) });
+    }
+    return jsonOut({ roster: roster });
+  }
+
+  if (action === 'weeks') {
+    var raw = stateGet('weeks');
+    return jsonOut({ weeks: raw ? JSON.parse(raw) : [] });
+  }
+
+  if (action === 'records') {
+    var week = e.parameter.week;
+    var sheetR = getSheet('Attendance');
+    var dataR = sheetR.getDataRange().getValues();
+    var records = [];
+    for (var j = 1; j < dataR.length; j++) {
+      if (String(dataR[j][0]) === String(week)) {
+        records.push({
+          week: dataR[j][0], date: dataR[j][1], id: dataR[j][2], name: dataR[j][3],
+          status: dataR[j][4], time: dataR[j][5], device: dataR[j][6]
+        });
+      }
+    }
+    return jsonOut({ records: records });
+  }
+
+  return jsonOut({ error: 'unknown action' });
+}
+
+function doPost(e) {
+  var body = JSON.parse(e.postData.contents);
+  var action = body.action;
+
+  // ── AUTH ──
+  if (action === 'setupPassword') {
+    // Allowed only if no password has ever been set (first-time setup)
+    if (stateGet('pwHash')) {
+      return jsonOut({ success: false, reason: 'already_set' });
+    }
+    if (!body.password || body.password.length < 4) {
+      return jsonOut({ success: false, reason: 'too_short' });
+    }
+    stateSet('pwHash', sha256Hex(body.password));
+    return jsonOut({ success: true });
+  }
+
+  if (action === 'login') {
+    if (!checkLoginThrottle()) {
+      return jsonOut({ success: false, reason: 'locked_out' });
+    }
+    var storedHash = stateGet('pwHash');
+    if (!storedHash) {
+      return jsonOut({ success: false, reason: 'not_set_up' });
+    }
+    if (sha256Hex(body.password || '') === storedHash) {
+      recordLoginSuccess();
+      return jsonOut({ success: true });
+    }
+    recordLoginFailure();
+    return jsonOut({ success: false, reason: 'wrong_password' });
+  }
+
+  if (action === 'changePassword') {
+    var oldHash = stateGet('pwHash');
+    if (!oldHash || sha256Hex(body.oldPassword || '') !== oldHash) {
+      return jsonOut({ success: false, reason: 'wrong_password' });
+    }
+    if (!body.newPassword || body.newPassword.length < 4) {
+      return jsonOut({ success: false, reason: 'too_short' });
+    }
+    stateSet('pwHash', sha256Hex(body.newPassword));
+    return jsonOut({ success: true });
+  }
+
+  // ── ROSTER ──
+  if (action === 'setRoster') {
+    var sheet = getSheet('Roster');
+    sheet.clear();
+    sheet.appendRow(['學號', '姓名']);
+    var rows = body.roster.map(function(s) { return [s.id, s.name]; });
+    if (rows.length > 0) {
+      sheet.getRange(2, 1, rows.length, 2).setValues(rows);
+    }
+    return jsonOut({ result: 'ok' });
+  }
+
+  // ── WEEKS ──
+  if (action === 'setWeeks') {
+    stateSet('weeks', JSON.stringify(body.weeks || []));
+    return jsonOut({ result: 'ok' });
+  }
+
+  // ── SESSION ──
+  if (action === 'setSession') {
+    stateSet('active', body.active ? 'true' : 'false');
+    stateSet('week', body.week || '');
+    stateSet('question', body.question || '');
+    stateSet('answer', body.answer || '');
+    return jsonOut({ result: 'ok' });
+  }
+
+  if (action === 'setToken') {
+    stateSet('token', body.token || '');
+    stateSet('tokenTs', String(Date.now()));
+    return jsonOut({ result: 'ok' });
+  }
+
+  if (action === 'submitAttendance') {
+    var week = body.week;
+    var id = body.id;
+    var answer = (body.answer || '').toLowerCase().trim();
+    var token = body.token;
+    var device = body.device || '';
+
+    var active = stateGet('active') === 'true';
+    var curWeek = stateGet('week');
+    var curToken = stateGet('token');
+    var curAnswer = (stateGet('answer') || '').toLowerCase().trim();
+    var tokenTs = Number(stateGet('tokenTs') || 0);
+
+    if (!active) return jsonOut({ success: false, reason: 'session_not_active' });
+    if (String(curWeek) !== String(week)) return jsonOut({ success: false, reason: 'week_mismatch' });
+    if (curToken !== token) return jsonOut({ success: false, reason: 'token_invalid' });
+    if (Date.now() - tokenTs > 90000) return jsonOut({ success: false, reason: 'token_expired' });
+    if (answer !== curAnswer) return jsonOut({ success: false, reason: 'wrong_answer' });
+
+    var rosterSheet = getSheet('Roster');
+    var rosterData = rosterSheet.getDataRange().getValues();
+    var studentName = null;
+    for (var i = 1; i < rosterData.length; i++) {
+      if (String(rosterData[i][0]).toUpperCase() === String(id).toUpperCase()) {
+        studentName = rosterData[i][1];
+        break;
+      }
+    }
+    if (!studentName) return jsonOut({ success: false, reason: 'id_not_found' });
+
+    var attSheet = getSheet('Attendance');
+    var attData = attSheet.getDataRange().getValues();
+    for (var j = 1; j < attData.length; j++) {
+      if (String(attData[j][0]) === String(week) && String(attData[j][2]).toUpperCase() === String(id).toUpperCase()) {
+        return jsonOut({ success: false, reason: 'already_signed' });
+      }
+    }
+
+    var now = new Date();
+    var timeStr = Utilities.formatDate(now, Session.getScriptTimeZone(), 'HH:mm:ss');
+    attSheet.appendRow([week, '', id, studentName, '出席', timeStr, device]);
+
+    return jsonOut({ success: true, name: studentName, time: timeStr });
+  }
+
+  if (action === 'manualSign') {
+    var week2 = body.week;
+    var id2 = body.id;
+    var name2 = body.name;
+
+    var attSheet2 = getSheet('Attendance');
+    var attData2 = attSheet2.getDataRange().getValues();
+    for (var k = 1; k < attData2.length; k++) {
+      if (String(attData2[k][0]) === String(week2) && String(attData2[k][2]).toUpperCase() === String(id2).toUpperCase()) {
+        return jsonOut({ success: false, reason: 'already_signed' });
+      }
+    }
+
+    var now2 = new Date();
+    var timeStr2 = Utilities.formatDate(now2, Session.getScriptTimeZone(), 'HH:mm:ss');
+    attSheet2.appendRow([week2, '', id2, name2, '手動補填', timeStr2, 'manual']);
+    return jsonOut({ success: true });
+  }
+
+  return jsonOut({ error: 'unknown action' });
+}
+`;
   document.getElementById('gasCode').value = code;
 }
 
@@ -3506,17 +3873,33 @@ async function testGasConnection(){
   }
 }
 
-async function syncToSheets(data){
-  const url = DB.get('gasUrl');
-  if(!url) return;
-  const wInfo = getWeekInfo(data.week||1);
+async function gasGet(action, params){
+  const base = DB.get('gasUrl');
+  if(!base) return null;
+  let url = base + (base.includes('?') ? '&' : '?') + 'action=' + encodeURIComponent(action);
+  if(params) Object.keys(params).forEach(k => { url += '&' + k + '=' + encodeURIComponent(params[k]); });
   try{
-    await fetch(url, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ...data, date: wInfo ? wInfo.date : '' })
+    const r = await fetch(url, { method:'GET' });
+    return await r.json();
+  }catch(e){ console.warn('gasGet failed', action, e); return null; }
+}
+
+async function gasPost(action, data){
+  const url = DB.get('gasUrl');
+  if(!url) return null;
+  try{
+    const r = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ action, ...data })
     });
-  }catch(e){ console.warn('Sheets sync failed', e); }
+    return await r.json();
+  }catch(e){ console.warn('gasPost failed', action, e); return null; }
+}
+
+// Backward-compatible alias used by earlier code paths
+async function syncToSheets(data){
+  return gasPost('manualSign', data);
 }
 
 // ══════════════════════════════════════════════
@@ -3557,8 +3940,10 @@ function clearAllData(){
 // ══════════════════════════════════════════════
 // STUDENT MODE
 // ══════════════════════════════════════════════
-function initStudentMode(token, week){
-  // Check device lock
+let studentRoster = [];
+
+async function initStudentMode(token, week){
+  // Check device lock (device-specific, safe to keep local)
   const deviceId = getDeviceId();
   const lockedWeek = DB.get('device_locked_week');
   if(lockedWeek === week){
@@ -3566,33 +3951,68 @@ function initStudentMode(token, week){
     return;
   }
 
-  // Get session
-  const session = DB.get('session');
-  if(!session || !session.active){
-    showError('❌ 點名尚未開始', '請等老師開啟點名，再掃描最新的 QR Code');
-    return;
-  }
-  if(session.week !== week){
-    showError('❌ QR Code 不符', '此 QR Code 與目前點名週別不符，請重新掃描');
+  if(!DB.get('gasUrl')){
+    // Student device has no gasUrl saved locally (normal — it's a fresh browser).
+    // We still need SOME way to reach the backend. The URL itself must carry the
+    // GAS endpoint, otherwise a student's fresh browser has no way to know it.
+    showError('❌ 系統設定不完整', '這台裝置找不到後端連線資訊，請聯絡老師確認 QR Code 網址是否正確');
     return;
   }
 
-  // Validate token
-  const currentToken = DB.get('currentToken');
-  if(!currentToken || currentToken.token !== token){
+  document.getElementById('step1').innerHTML = '<p style="text-align:center;color:var(--text3);padding:20px 0">載入中...</p>';
+
+  const [session, rosterRes, weeksRes] = await Promise.all([
+    gasGet('session', {}),
+    gasGet('roster', {}),
+    gasGet('weeks', {})
+  ]);
+
+  if(weeksRes && weeksRes.weeks && weeksRes.weeks.length>0){
+    DB.set('weeks', weeksRes.weeks);
+  }
+
+  if(!session){
+    showError('❌ 無法連線', '暫時連不上點名系統，請確認網路連線後重新整理頁面');
+    return;
+  }
+  if(!session.active){
+    showError('❌ 點名尚未開始', '請等老師開啟點名，再掃描最新的 QR Code');
+    return;
+  }
+  if(String(session.week) !== String(week)){
+    showError('❌ QR Code 不符', '此 QR Code 與目前點名週別不符，請重新掃描');
+    return;
+  }
+  if(session.token !== token){
     showError('⏰ QR Code 已失效', '此 QR Code 已過期，請請老師顯示最新的 QR Code 後重新掃描');
     return;
   }
-  if(Date.now() - currentToken.ts > 65000){
-    showError('⏰ QR Code 已失效', '此 QR Code 已過期超過 65 秒，請重新掃描最新的 QR Code');
+  if(Date.now() - session.tokenTs > 90000){
+    showError('⏰ QR Code 已失效', '此 QR Code 已過期，請重新掃描最新的 QR Code');
     return;
   }
+
+  studentRoster = (rosterRes && rosterRes.roster) ? rosterRes.roster : [];
 
   const wInfo = getWEEKS()[week-1];
   document.getElementById('studentCourseInfo').textContent = `數位行銷傳播與實務・第 ${week} 週（${wInfo ? wInfo.date : ''}）`;
   document.getElementById('questionLabel').textContent = session.question;
   sessionQuestion = session.question;
-  sessionAnswer = session.answer;
+
+  // Restore step1's original markup (it was replaced with a loading message above)
+  restoreStep1Markup();
+}
+
+function restoreStep1Markup(){
+  document.getElementById('step1').innerHTML = `
+      <div class="form-group">
+        <label>請輸入你的學號</label>
+        <input type="text" id="studentId" placeholder="例：B11234567" autocomplete="off"
+          oninput="this.value=this.value.toUpperCase()" />
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="lookupStudent()">查詢 →</button>
+      <div class="error-msg" id="err1"></div>
+  `;
 }
 
 function lookupStudent(){
@@ -3600,17 +4020,9 @@ function lookupStudent(){
   const err = document.getElementById('err1');
   if(!id){ showStudentErr(err,'請輸入學號'); return; }
 
-  const student = roster.find(s => s.id.toUpperCase() === id);
+  const student = studentRoster.find(s => s.id.toUpperCase() === id);
   if(!student){
     showStudentErr(err,'找不到此學號，請確認輸入是否正確，或請老師手動補填');
-    return;
-  }
-
-  // Check already signed
-  const week = studentTokenData.week;
-  const records = getWeekRecords(week);
-  if(records.find(r=>r.id===student.id)){
-    showError('✅ 你已完成簽到', '此學號本週已記錄出席，無需重複簽到');
     return;
   }
 
@@ -3619,32 +4031,57 @@ function lookupStudent(){
   goStep(2);
 }
 
-function submitAttendance(){
-  const ans = document.getElementById('studentAnswer').value.trim().toLowerCase();
+async function submitAttendance(){
+  const ans = document.getElementById('studentAnswer').value.trim();
   const err = document.getElementById('err3');
   if(!ans){ showStudentErr(err,'請輸入答案'); return; }
-  if(ans !== sessionAnswer){
-    showStudentErr(err,'答案不正確，請再想想！');
+
+  const id = document.getElementById('studentId').value.trim().toUpperCase();
+  const student = studentRoster.find(s=>s.id.toUpperCase()===id);
+  const week = studentTokenData.week;
+  const wInfo = getWEEKS()[week-1];
+
+  const btn = document.querySelector('#step3 button');
+  const originalText = btn.textContent;
+  btn.textContent = '送出中...';
+  btn.disabled = true;
+
+  const res = await gasPost('submitAttendance', {
+    week, id: student.id, answer: ans, token: studentTokenData.token, device: getDeviceId().slice(0,8)
+  });
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+
+  if(!res){
+    showStudentErr(err, '連線失敗，請確認網路後再試一次');
+    return;
+  }
+  if(!res.success){
+    const reasonMsg = {
+      session_not_active: '點名已結束，請聯絡老師',
+      week_mismatch: 'QR Code 週別不符，請重新掃描',
+      token_invalid: 'QR Code 已失效，請重新掃描最新的 QR Code',
+      token_expired: 'QR Code 已過期，請重新掃描最新的 QR Code',
+      wrong_answer: '答案不正確，請再想想！',
+      id_not_found: '找不到此學號，請聯絡老師',
+      already_signed: '此學號本週已完成簽到'
+    }[res.reason] || '簽到失敗，請聯絡老師';
+
+    if(res.reason === 'already_signed'){
+      showError('✅ 你已完成簽到', '此學號本週已記錄出席，無需重複簽到');
+    } else {
+      showStudentErr(err, reasonMsg);
+    }
     return;
   }
 
-  const id = document.getElementById('studentId').value.trim().toUpperCase();
-  const student = roster.find(s=>s.id.toUpperCase()===id);
-  const week = studentTokenData.week;
-  const wInfo = getWEEKS()[week-1];
-  const timeStr = now();
-
-  // Save record
-  saveRecord({ id:student.id, name:student.name, week, status:'present', time:timeStr, device:getDeviceId().slice(0,8) });
-
-  // Lock device
+  // Success — also cache locally for the device-lock check
+  saveRecord({ id:student.id, name:res.name, week, status:'present', time:res.time, device:getDeviceId().slice(0,8) });
   DB.set('device_locked_week', week);
 
-  // Sync to Sheets
-  syncToSheets({ id:student.id, name:student.name, week:`第${week}週`, date:wInfo.date, status:'出席', time:timeStr, device:getDeviceId().slice(0,8) });
-
   goStep(4);
-  document.getElementById('successInfo').textContent = `${student.name}・第 ${week} 週（${wInfo.date}）・${timeStr}`;
+  document.getElementById('successInfo').textContent = `${res.name}・第 ${week} 週（${wInfo.date}）・${res.time}`;
 }
 
 function goStep(n){
@@ -3732,5 +4169,5 @@ if(zone){
 
 init();
 </script>
-</body>
-</html>
+
+</body></html>
