@@ -3227,7 +3227,7 @@ function getStudentUrl(token, week){
   return `${base}?t=${token}&w=${week}${gParam}`;
 }
 
-function startSession(){
+async function startSession(){
   if(!currentWeek){ alert('請先選擇週別'); return; }
   const q = document.getElementById('questionInput').value.trim();
   const a = document.getElementById('answerInput').value.trim();
@@ -3242,13 +3242,42 @@ function startSession(){
   sessionQuestion = q;
   sessionAnswer = a.toLowerCase();
 
+  const startBtn = document.querySelector('button[onclick="startSession()"]');
+  const originalBtnText = startBtn ? startBtn.textContent : '';
+  if(startBtn){ startBtn.textContent = '啟動中...'; startBtn.disabled = true; }
+
+  // Critical: wait for and verify the backend actually accepted the session
+  // state before telling the teacher (and enabling the QR button) that
+  // attendance is running. Without this check, a silently-failed sync would
+  // leave the teacher's screen showing "進行中" while students scanning the
+  // QR would correctly (but confusingly) be told "點名尚未開始".
+  let confirmed = true;
+  if(hasGas){
+    const res = await gasPost('setSession', { active:true, week:currentWeek, question:q, answer:sessionAnswer });
+    if(!res || res.result !== 'ok'){
+      confirmed = false;
+    } else {
+      // Double-check by reading it back
+      const check = await gasGet('session', {});
+      if(!check || !check.active || String(check.week) !== String(currentWeek)){
+        confirmed = false;
+      }
+    }
+  }
+
+  if(startBtn){ startBtn.textContent = originalBtnText; startBtn.disabled = false; }
+
+  if(!confirmed){
+    alert('⚠️ 點名狀態同步到 Google Sheets 失敗！\n\n學生手機掃碼將會看到「點名尚未開始」。\n請確認網路連線後，重新點擊「開始點名」。');
+    return;
+  }
+
   document.getElementById('stopBtn').style.display='inline-flex';
   document.getElementById('openQrBtn').style.display='flex';
   document.getElementById('sessionInfo').textContent = `第 ${currentWeek} 週 (${getWEEKS()[currentWeek-1].date}) 點名進行中`;
   document.getElementById('sessionInfo').className = 'alert alert-success';
 
   DB.set('session', { week: currentWeek, question: q, answer: sessionAnswer, active: true });
-  gasPost('setSession', { active:true, week:currentWeek, question:q, answer:sessionAnswer });
 
   rotateQR();
   qrInterval = setInterval(rotateQR, 60000);
@@ -3261,7 +3290,19 @@ function rotateQR(){
   sessionToken = generateToken();
   DB.set('currentToken', { token: sessionToken, ts: Date.now() });
   timerSec = 60;
-  gasPost('setToken', { token: sessionToken });
+  gasPost('setToken', { token: sessionToken }).then(res => {
+    const info = document.getElementById('sessionInfo');
+    if(!info) return;
+    if(!res || res.result !== 'ok'){
+      info.textContent = '⚠️ QR Code 同步失敗，學生可能無法簽到，請確認網路連線';
+      info.className = 'alert alert-warn';
+    } else if(info.classList.contains('alert-warn')){
+      // Recovered on a later rotation — restore the normal status text
+      const wInfo = getWeekInfo(currentWeek);
+      info.textContent = `第 ${currentWeek} 週 (${wInfo.date}) 點名進行中`;
+      info.className = 'alert alert-success';
+    }
+  });
   // Notify popup window if open (same-device convenience path; not required for cross-device)
   if(qrPopup && !qrPopup.closed){
     qrPopup.updateQR && qrPopup.updateQR(getStudentUrl(sessionToken, currentWeek));
