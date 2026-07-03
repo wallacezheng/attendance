@@ -3252,15 +3252,21 @@ async function startSession(){
   // leave the teacher's screen showing "進行中" while students scanning the
   // QR would correctly (but confusingly) be told "點名尚未開始".
   let confirmed = true;
+  let failureDetail = '';
   if(hasGas){
     const res = await gasPost('setSession', { active:true, week:currentWeek, question:q, answer:sessionAnswer });
     if(!res || res.result !== 'ok'){
       confirmed = false;
+      failureDetail = '寫入失敗（setSession 請求未成功）\n' + formatGasError();
     } else {
       // Double-check by reading it back
       const check = await gasGet('session', {});
-      if(!check || !check.active || String(check.week) !== String(currentWeek)){
+      if(!check){
         confirmed = false;
+        failureDetail = '寫入似乎成功，但驗證讀取失敗（session 查詢請求未成功）\n' + formatGasError();
+      } else if(!check.active || String(check.week) !== String(currentWeek)){
+        confirmed = false;
+        failureDetail = '寫入請求有回應，但讀回來的狀態不正確\n讀到的內容：' + JSON.stringify(check);
       }
     }
   }
@@ -3268,7 +3274,7 @@ async function startSession(){
   if(startBtn){ startBtn.textContent = originalBtnText; startBtn.disabled = false; }
 
   if(!confirmed){
-    alert('⚠️ 點名狀態同步到 Google Sheets 失敗！\n\n學生手機掃碼將會看到「點名尚未開始」。\n請確認網路連線後，重新點擊「開始點名」。');
+    alert('⚠️ 點名狀態同步到 Google Sheets 失敗！\n\n學生手機掃碼將會看到「點名尚未開始」。\n請確認網路連線後，重新點擊「開始點名」。\n\n--- 詳細錯誤（可截圖回報） ---\n' + failureDetail);
     return;
   }
 
@@ -4083,6 +4089,8 @@ async function testGasConnection(){
   }
 }
 
+let lastGasError = null;
+
 async function gasGet(action, params){
   const base = DB.get('gasUrl');
   if(!base) return null;
@@ -4090,8 +4098,25 @@ async function gasGet(action, params){
   if(params) Object.keys(params).forEach(k => { url += '&' + k + '=' + encodeURIComponent(params[k]); });
   try{
     const r = await fetch(url, { method:'GET' });
-    return await r.json();
-  }catch(e){ console.warn('gasGet failed', action, e); return null; }
+    const bodyText = await r.text();
+    if(!r.ok){
+      lastGasError = { action, type:'http_status', status:r.status, body: bodyText.slice(0,300) };
+      console.warn('gasGet non-OK status', action, r.status, bodyText);
+      return null;
+    }
+    try{
+      const json = JSON.parse(bodyText);
+      lastGasError = null;
+      return json;
+    }catch(parseErr){
+      lastGasError = { action, type:'bad_json', message: parseErr.message, body: bodyText.slice(0,300) };
+      return null;
+    }
+  }catch(e){
+    lastGasError = { action, type:'network', message: e.message };
+    console.warn('gasGet failed', action, e);
+    return null;
+  }
 }
 
 async function gasPost(action, data){
@@ -4103,8 +4128,34 @@ async function gasPost(action, data){
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body: JSON.stringify({ action, ...data })
     });
-    return await r.json();
-  }catch(e){ console.warn('gasPost failed', action, e); return null; }
+    const bodyText = await r.text();
+    if(!r.ok){
+      lastGasError = { action, type:'http_status', status:r.status, body: bodyText.slice(0,300) };
+      console.warn('gasPost non-OK status', action, r.status, bodyText);
+      return null;
+    }
+    try{
+      const json = JSON.parse(bodyText);
+      lastGasError = null;
+      return json;
+    }catch(parseErr){
+      lastGasError = { action, type:'bad_json', message: parseErr.message, body: bodyText.slice(0,300) };
+      return null;
+    }
+  }catch(e){
+    lastGasError = { action, type:'network', message: e.message };
+    console.warn('gasPost failed', action, e);
+    return null;
+  }
+}
+
+function formatGasError(){
+  if(!lastGasError) return '（沒有進一步的錯誤細節，可能是連線逾時）';
+  const g = lastGasError;
+  if(g.type === 'network') return `網路層級錯誤：${g.message}`;
+  if(g.type === 'http_status') return `伺服器回應非正常狀態碼 ${g.status}\n回應內容：${g.body || '（空白）'}`;
+  if(g.type === 'bad_json') return `伺服器回應的內容不是有效的 JSON\n回應內容：${g.body || '（空白）'}`;
+  return JSON.stringify(g);
 }
 
 // Backward-compatible alias used by earlier code paths
