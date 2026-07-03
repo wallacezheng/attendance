@@ -3775,7 +3775,18 @@ function stateGet(key) {
   var sheet = getSheet('State');
   var data = sheet.getDataRange().getValues();
   for (var i = 1; i < data.length; i++) {
-    if (data[i][0] === key) return data[i][1];
+    if (data[i][0] === key) {
+      var val = data[i][1];
+      // Google Sheets auto-converts cell values that LOOK like booleans
+      // ("true"/"false") or dates/times into real typed cells. Left as-is,
+      // strict string comparisons like (stateGet('active') === 'true')
+      // would silently fail forever once Sheets coerces it. Normalize back.
+      if (typeof val === 'boolean') return val ? 'true' : 'false';
+      if (Object.prototype.toString.call(val) === '[object Date]') {
+        return Utilities.formatDate(val, Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm:ss');
+      }
+      return val;
+    }
   }
   return null;
 }
@@ -3785,11 +3796,17 @@ function stateSet(key, value) {
   var data = sheet.getDataRange().getValues();
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] === key) {
-      sheet.getRange(i + 1, 2).setValue(value);
+      var cell = sheet.getRange(i + 1, 2);
+      cell.setNumberFormat('@'); // force plain text, prevent auto type coercion
+      cell.setValue(String(value));
       return;
     }
   }
-  sheet.appendRow([key, value]);
+  var newRow = sheet.getLastRow() + 1;
+  sheet.getRange(newRow, 1).setValue(key);
+  var valueCell = sheet.getRange(newRow, 2);
+  valueCell.setNumberFormat('@');
+  valueCell.setValue(String(value));
 }
 
 function sha256Hex(text) {
