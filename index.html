@@ -2691,11 +2691,14 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
     <input type="file" id="csvFile" accept=".csv" style="display:none" onchange="importCSV(event)">
     <div class="btn-row mt16">
       <button class="btn btn-ghost btn-sm" onclick="downloadTemplate()">⬇️ 下載名單範本</button>
+      <button class="btn btn-teal btn-sm" onclick="refreshRosterFromSheets()" id="refreshRosterBtn">🔄 從 Google Sheets 重新整理</button>
     </div>
+    <div class="text-muted mt8" id="rosterSyncStatus" style="font-size:12px"></div>
   </div>
 
   <div class="card" id="rosterCard" style="display:none">
     <div class="card-title"><span>📋</span>目前名單 <span id="rosterCount" style="margin-left:auto;font-size:13px;font-weight:400;color:var(--text3)"></span></div>
+
     <div style="overflow-x:auto">
       <table class="tbl" id="rosterTable">
         <thead><tr><th>#</th><th>學號</th><th>姓名</th><th>操作</th></tr></thead>
@@ -3700,6 +3703,38 @@ function loadRoster(){
   if(roster.length > 0) renderRoster();
 }
 
+async function refreshRosterFromSheets(){
+  const btn = document.getElementById('refreshRosterBtn');
+  const status = document.getElementById('rosterSyncStatus');
+  if(!DB.get('gasUrl')){
+    if(status) status.innerHTML = '<span style="color:var(--coral)">尚未設定 Google Sheets 串接，請先到「設定」頁面完成連線</span>';
+    return;
+  }
+  const originalText = btn.textContent;
+  btn.textContent = '讀取中...';
+  btn.disabled = true;
+
+  const res = await gasGet('roster', {});
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+
+  if(!res){
+    if(status) status.innerHTML = '<span style="color:var(--coral)">同步失敗，請確認網路連線</span>\n' + formatGasError();
+    return;
+  }
+
+  roster = res.roster || [];
+  DB.set('roster', roster);
+  renderRoster();
+  if(roster.length === 0){
+    document.getElementById('rosterCard').style.display='block';
+  }
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  if(status) status.innerHTML = `<span style="color:var(--teal-mid)">✅ 已於 ${timeStr} 從 Google Sheets 同步，共 ${roster.length} 人</span>`;
+}
+
 function renderRoster(){
   document.getElementById('rosterCard').style.display='block';
   document.getElementById('rosterCount').textContent = `共 ${roster.length} 人`;
@@ -3859,6 +3894,33 @@ function recordLoginSuccess() {
   stateSet('pwFailCount', '0');
 }
 
+function getSessionData() {
+  return {
+    active: stateGet('active') === 'true',
+    week: stateGet('week') || '',
+    question: stateGet('question') || '',
+    token: stateGet('token') || '',
+    tokenTs: Number(stateGet('tokenTs') || 0),
+    prevToken: stateGet('prevToken') || '',
+    prevTokenTs: Number(stateGet('prevTokenTs') || 0)
+  };
+}
+
+function getRosterData() {
+  var sheet = getSheet('Roster');
+  var data = sheet.getDataRange().getValues();
+  var roster = [];
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0]) roster.push({ id: String(data[i][0]), name: String(data[i][1]) });
+  }
+  return roster;
+}
+
+function getWeeksData() {
+  var raw = stateGet('weeks');
+  return raw ? JSON.parse(raw) : [];
+}
+
 function doGet(e) {
   var action = e.parameter.action || 'ping';
 
@@ -3871,30 +3933,29 @@ function doGet(e) {
   }
 
   if (action === 'session') {
-    return jsonOut({
-      active: stateGet('active') === 'true',
-      week: stateGet('week') || '',
-      question: stateGet('question') || '',
-      token: stateGet('token') || '',
-      tokenTs: Number(stateGet('tokenTs') || 0),
-      prevToken: stateGet('prevToken') || '',
-      prevTokenTs: Number(stateGet('prevTokenTs') || 0)
-    });
+    return jsonOut(getSessionData());
   }
 
   if (action === 'roster') {
-    var sheet = getSheet('Roster');
-    var data = sheet.getDataRange().getValues();
-    var roster = [];
-    for (var i = 1; i < data.length; i++) {
-      if (data[i][0]) roster.push({ id: String(data[i][0]), name: String(data[i][1]) });
-    }
-    return jsonOut({ roster: roster });
+    return jsonOut({ roster: getRosterData() });
   }
 
   if (action === 'weeks') {
-    var raw = stateGet('weeks');
-    return jsonOut({ weeks: raw ? JSON.parse(raw) : [] });
+    return jsonOut({ weeks: getWeeksData() });
+  }
+
+  if (action === 'studentBootstrap') {
+    // Combines session + roster + weeks into a single round trip. Used by
+    // the student-facing scan flow specifically to minimize Apps Script
+    // cold-start latency: three separate GET requests each pay their own
+    // overhead, which can add up to a slow enough load that a QR token
+    // rotates (or its grace window lapses) before the page finishes
+    // loading. One combined call cuts that overhead roughly to a third.
+    return jsonOut({
+      session: getSessionData(),
+      roster: getRosterData(),
+      weeks: getWeeksData()
+    });
   }
 
   if (action === 'records') {
@@ -4259,11 +4320,13 @@ async function initStudentMode(token, week){
 
   document.getElementById('step1').innerHTML = '<p style="text-align:center;color:var(--text3);padding:20px 0">載入中...</p>';
 
-  const [session, rosterRes, weeksRes] = await Promise.all([
-    gasGet('session', {}),
-    gasGet('roster', {}),
-    gasGet('weeks', {})
-  ]);
+  // Single combined request instead of three separate ones — meaningfully
+  // reduces total load time, especially against a cold-started Apps Script
+  // deployment, where each individual request pays its own overhead.
+  const bootstrap = await gasGet('studentBootstrap', {});
+  const session = bootstrap ? bootstrap.session : null;
+  const rosterRes = bootstrap ? { roster: bootstrap.roster } : null;
+  const weeksRes = bootstrap ? { weeks: bootstrap.weeks } : null;
 
   if(weeksRes && weeksRes.weeks && weeksRes.weeks.length>0){
     DB.set('weeks', weeksRes.weeks);
@@ -4455,6 +4518,9 @@ function switchTab(id){
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   event.target.classList.add('active');
+  if(id === 'tab-roster' && DB.get('gasUrl')){
+    refreshRosterFromSheets();
+  }
 }
 
 // ── DRAG DROP ──
