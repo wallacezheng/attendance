@@ -2659,7 +2659,8 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
           <option value="">— 選擇週別 —</option>
         </select>
       </div>
-      <div style="display:flex;align-items:flex-end;gap:8px">
+      <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="loadCumulativeStats(event)">📈 全學期累計統計</button>
         <button class="btn btn-teal" onclick="exportCSV()">⬇️ 匯出 CSV</button>
         <button class="btn btn-ghost" onclick="exportAllCSV(event)">📦 匯出全學期</button>
       </div>
@@ -2713,6 +2714,21 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
 
 <!-- ── TAB: Settings ── -->
 <div id="tab-settings" class="panel">
+
+  <div class="card">
+    <div class="card-title"><span>📚</span>課程基本設定</div>
+    <p class="text-muted" style="margin-bottom:16px">課程名稱會顯示在學生簽到頁與 QR Code 展示頁。換一門課時，只要改這裡＋換一份 Google Sheets，同一套系統就能重複使用。</p>
+    <div class="form-row">
+      <div class="form-group" style="margin:0">
+        <label>課程名稱</label>
+        <input type="text" id="courseNameInput" placeholder="例：數位行銷傳播與實務" />
+      </div>
+      <div class="form-group" style="margin:0;display:flex;align-items:flex-end">
+        <button class="btn btn-primary" onclick="saveCourseName()">💾 儲存課程名稱</button>
+      </div>
+    </div>
+    <div id="courseNameMsg" class="mt8"></div>
+  </div>
 
   <div class="card">
     <div class="card-title"><span>📅</span>學期週次設定</div>
@@ -2957,6 +2973,7 @@ function enterTeacherInterface(){
   document.getElementById('teacher-interface').style.display='block';
   loadRoster();
   loadWeekSettings();
+  loadCourseName();
   buildWeekGrid();
   buildRecordWeekSelect();
   const savedUrl = DB.get('gasUrl');
@@ -3090,6 +3107,42 @@ function dateToInput(dateStr){
 function toggleSkipRow(i){
   const skip = document.getElementById('we-skip-'+i).checked;
   document.getElementById('weRow-'+i).style.opacity = skip ? '0.4' : '1';
+}
+
+function getCourseName(){
+  return DB.get('courseName') || '';
+}
+
+async function saveCourseName(){
+  const input = document.getElementById('courseNameInput');
+  const msg = document.getElementById('courseNameMsg');
+  const name = input.value.trim();
+  if(!name){ msg.innerHTML='<span style="color:var(--coral)">請輸入課程名稱</span>'; return; }
+  DB.set('courseName', name);
+  applyCourseName();
+  const res = await gasPost('setCourseName', { courseName: name });
+  if(res && res.result === 'ok'){
+    msg.innerHTML='<span style="color:var(--teal-mid)">✅ 已儲存並同步到 Google Sheets</span>';
+  } else {
+    msg.innerHTML='<span style="color:var(--coral)">已儲存（本機），但同步到 Google Sheets 失敗</span>';
+  }
+}
+
+function applyCourseName(){
+  const name = getCourseName();
+  if(!name) return;
+  document.title = name + '・點名系統';
+  const input = document.getElementById('courseNameInput');
+  if(input && !input.value) input.value = name;
+}
+
+async function loadCourseName(){
+  // Prefer backend (shared across devices); fall back to local cache
+  const res = await gasGet('courseName', {});
+  if(res && res.courseName){
+    DB.set('courseName', res.courseName);
+  }
+  applyCourseName();
 }
 
 async function saveWeeks(){
@@ -3369,7 +3422,7 @@ function buildQrPopupHtml(initialUrl, week, wInfo){
   lines.push('.offline-warn{font-size:12px;color:#FFD966;margin-top:10px;display:none}');
   lines.push('</style></head><body>');
   lines.push('<div class="wrap">');
-  lines.push('<div class="course">數位行銷傳播與實務</div>');
+  lines.push('<div class="course">' + (getCourseName() || '課堂簽到') + '</div>');
   lines.push('<div class="week-label">' + weekLabel + '</div>');
   lines.push('<div class="qr-box"><div id="qrcanvas"></div></div>');
   lines.push('<div class="timer-num" id="timerNum">120</div>');
@@ -3605,13 +3658,12 @@ async function exportCSV(){
   downloadFile(`出席紀錄_W${week}_${wInfo.date.replace('/','')}.csv`, csv, 'text/csv;charset=utf-8;');
 }
 
-async function exportAllCSV(evt){
+async function fetchAllWeeksRecords(btn, busyText){
   const allWeeks = getWEEKS().filter(w => !w.skip);
-  if(allWeeks.length === 0){ alert('尚未設定週次'); return; }
+  if(allWeeks.length === 0){ alert('尚未設定週次'); return null; }
 
-  const btn = evt ? evt.target : null;
   const originalText = btn ? btn.textContent : '';
-  if(btn){ btn.textContent = '匯出中...'; btn.disabled = true; }
+  if(btn){ btn.textContent = busyText || '讀取中...'; btn.disabled = true; }
 
   // Fetch all weeks' records from the shared backend in parallel
   const results = await Promise.all(
@@ -3628,6 +3680,62 @@ async function exportAllCSV(evt){
     records.forEach(r => { map[r.id] = r; });
     byWeek[w.n] = map;
   });
+
+  return { allWeeks, byWeek };
+}
+
+async function loadCumulativeStats(evt){
+  const data = await fetchAllWeeksRecords(evt ? evt.target : null, '統計中...');
+  if(!data) return;
+  const { allWeeks, byWeek } = data;
+
+  // Hide the single-week stats row; this is a different view
+  document.getElementById('recordStats').style.display = 'none';
+
+  // Only count weeks whose date has arrived (or that have any records) toward
+  // the denominator, so mid-semester the rates aren't diluted by future weeks.
+  const weeksWithData = allWeeks.filter(w => Object.keys(byWeek[w.n]).length > 0);
+  const denomWeeks = weeksWithData.length > 0 ? weeksWithData : allWeeks;
+
+  const rows = roster.map(s => {
+    let present = 0, manual = 0;
+    const cells = denomWeeks.map(w => {
+      const r = byWeek[w.n][s.id];
+      if(!r) return '<td style="text-align:center;color:var(--coral-mid)">✗</td>';
+      if(r.status==='manual' || r.status==='手動補填'){ manual++; present++; return '<td style="text-align:center;color:var(--amber-mid)">補</td>'; }
+      present++;
+      return '<td style="text-align:center;color:var(--teal-mid)">✓</td>';
+    }).join('');
+    const rate = denomWeeks.length ? Math.round(present/denomWeeks.length*100) : 0;
+    const rateColor = rate >= 80 ? 'var(--teal-mid)' : rate >= 60 ? 'var(--amber-mid)' : 'var(--coral-mid)';
+    return { html: `<tr>
+      <td><code>${s.id}</code></td>
+      <td><strong>${s.name}</strong></td>
+      ${cells}
+      <td style="text-align:center;font-weight:700;color:${rateColor}">${rate}%</td>
+      <td style="text-align:center">${present}/${denomWeeks.length}</td>
+    </tr>`, rate };
+  });
+
+  const weekHeaders = denomWeeks.map(w => `<th style="text-align:center" title="${w.date}${w.label ? '・'+w.label : ''}">W${w.n}</th>`).join('');
+
+  document.getElementById('recordTable').innerHTML = `
+    <div class="card-title" style="margin-bottom:12px"><span>📈</span>全學期累計統計
+      <span style="margin-left:auto;font-size:12px;font-weight:400;color:var(--text3)">已有紀錄的週次：${denomWeeks.length} 週・✓ 出席 / 補 手動補填 / ✗ 缺席</span>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="tbl">
+      <thead><tr><th>學號</th><th>姓名</th>${weekHeaders}<th style="text-align:center">出席率</th><th style="text-align:center">出席週數</th></tr></thead>
+      <tbody>${rows.map(r=>r.html).join('')}</tbody>
+    </table>
+    </div>
+  `;
+}
+
+async function exportAllCSV(evt){
+  const data = await fetchAllWeeksRecords(evt ? evt.target : null, '匯出中...');
+  if(!data) return;
+  const { allWeeks, byWeek } = data;
 
   // Header row: 學號, 姓名, 第1週(日期), 第2週(日期), ..., 個人出席率
   const header = ['學號','姓名', ...allWeeks.map(w => `第${w.n}週(${w.date})`), '個人出席率'];
@@ -3945,17 +4053,19 @@ function doGet(e) {
   }
 
   if (action === 'studentBootstrap') {
-    // Combines session + roster + weeks into a single round trip. Used by
-    // the student-facing scan flow specifically to minimize Apps Script
-    // cold-start latency: three separate GET requests each pay their own
-    // overhead, which can add up to a slow enough load that a QR token
-    // rotates (or its grace window lapses) before the page finishes
-    // loading. One combined call cuts that overhead roughly to a third.
+    // Combines session + roster + weeks + courseName into a single round
+    // trip. Used by the student-facing scan flow specifically to minimize
+    // Apps Script cold-start latency.
     return jsonOut({
       session: getSessionData(),
       roster: getRosterData(),
-      weeks: getWeeksData()
+      weeks: getWeeksData(),
+      courseName: stateGet('courseName') || ''
     });
+  }
+
+  if (action === 'courseName') {
+    return jsonOut({ courseName: stateGet('courseName') || '' });
   }
 
   if (action === 'records') {
@@ -4045,6 +4155,11 @@ function doPost(e) {
     return jsonOut({ result: 'ok' });
   }
 
+  if (action === 'setCourseName') {
+    stateSet('courseName', String(body.courseName || ''));
+    return jsonOut({ result: 'ok' });
+  }
+
   // ── SESSION ──
   if (action === 'setSession') {
     stateSet('active', body.active ? 'true' : 'false');
@@ -4112,8 +4227,19 @@ function doPost(e) {
     var attSheet = getSheet('Attendance');
     var attData = attSheet.getDataRange().getValues();
     for (var j = 1; j < attData.length; j++) {
-      if (String(attData[j][0]) === String(week) && String(attData[j][2]).toUpperCase() === String(id).toUpperCase()) {
-        return jsonOut({ success: false, reason: 'already_signed' });
+      if (String(attData[j][0]) === String(week)) {
+        // Same student already signed this week
+        if (String(attData[j][2]).toUpperCase() === String(id).toUpperCase()) {
+          return jsonOut({ success: false, reason: 'already_signed' });
+        }
+        // SERVER-SIDE device lock: this device already signed for a DIFFERENT
+        // student this week. The client-side localStorage lock is trivially
+        // bypassed (clear browser data / incognito / another browser app), so
+        // the authoritative check must live here. Skip 'manual' device rows —
+        // those are teacher-initiated and unrelated to student devices.
+        if (device && device !== 'manual' && String(attData[j][6]) === String(device)) {
+          return jsonOut({ success: false, reason: 'device_already_used' });
+        }
       }
     }
 
@@ -4328,6 +4454,9 @@ async function initStudentMode(token, week){
   const rosterRes = bootstrap ? { roster: bootstrap.roster } : null;
   const weeksRes = bootstrap ? { weeks: bootstrap.weeks } : null;
 
+  if(bootstrap && bootstrap.courseName){
+    DB.set('courseName', bootstrap.courseName);
+  }
   if(weeksRes && weeksRes.weeks && weeksRes.weeks.length>0){
     DB.set('weeks', weeksRes.weeks);
   }
@@ -4360,7 +4489,7 @@ async function initStudentMode(token, week){
   studentRoster = (rosterRes && rosterRes.roster) ? rosterRes.roster : [];
 
   const wInfo = getWEEKS()[week-1];
-  document.getElementById('studentCourseInfo').textContent = `數位行銷傳播與實務・第 ${week} 週（${wInfo ? wInfo.date : ''}）`;
+  document.getElementById('studentCourseInfo').textContent = `${getCourseName() || '課堂簽到'}・第 ${week} 週（${wInfo ? wInfo.date : ''}）`;
   document.getElementById('questionLabel').textContent = session.question;
   sessionQuestion = session.question;
 
@@ -4413,7 +4542,7 @@ async function submitAttendance(){
 
   const res = await gasPost('submitAttendance', {
     week, id: student.id, answer: ans, token: studentTokenData.token,
-    device: getDeviceId().slice(0,8), date: wInfo ? wInfo.date : ''
+    device: getDeviceId(), date: wInfo ? wInfo.date : ''
   });
 
   btn.textContent = originalText;
@@ -4431,19 +4560,22 @@ async function submitAttendance(){
       token_expired: 'QR Code 已過期，請重新掃描最新的 QR Code',
       wrong_answer: '答案不正確，請再想想！',
       id_not_found: '找不到此學號，請聯絡老師',
-      already_signed: '此學號本週已完成簽到'
+      already_signed: '此學號本週已完成簽到',
+      device_already_used: '這台裝置本週已幫其他同學完成簽到，每台裝置每週僅能簽到一次。如有特殊狀況請告知老師手動補填'
     }[res.reason] || '簽到失敗，請聯絡老師';
 
     if(res.reason === 'already_signed'){
       showError('✅ 你已完成簽到', '此學號本週已記錄出席，無需重複簽到');
+    } else if(res.reason === 'device_already_used'){
+      showError('⚠️ 此裝置已使用過', reasonMsg);
     } else {
       showStudentErr(err, reasonMsg);
     }
     return;
   }
 
-  // Success — also cache locally for the device-lock check
-  saveRecord({ id:student.id, name:res.name, week, status:'present', time:res.time, device:getDeviceId().slice(0,8) });
+  // Success — also cache locally for the fast-path device-lock check
+  saveRecord({ id:student.id, name:res.name, week, status:'present', time:res.time, device:getDeviceId() });
   DB.set('device_locked_week', week);
 
   goStep(4);
@@ -4483,16 +4615,29 @@ function saveRecord(record){
 }
 
 function getDeviceId(){
-  let id = DB.get('deviceId');
-  if(!id){
-    id = [navigator.language, screen.width, screen.height,
-      Intl.DateTimeFormat().resolvedOptions().timeZone,
-      navigator.hardwareConcurrency, navigator.userAgent.slice(0,50)
-    ].join('|');
-    id = btoa(unescape(encodeURIComponent(id))).slice(0,32);
-    DB.set('deviceId', id);
+  // Computed fresh from hardware/browser traits every time rather than cached
+  // in localStorage — a cached random ID would reset when the student clears
+  // browser data, defeating the server-side device lock. Trait-derived IDs
+  // stay stable across storage clears on the same physical device+browser.
+  const traits = [
+    navigator.language,
+    (navigator.languages || []).join(','),
+    screen.width, screen.height, screen.colorDepth,
+    window.devicePixelRatio || 1,
+    Intl.DateTimeFormat().resolvedOptions().timeZone,
+    navigator.hardwareConcurrency || 0,
+    navigator.maxTouchPoints || 0,
+    navigator.platform || '',
+    navigator.userAgent
+  ].join('|');
+  // Simple stable hash (djb2) — no crypto needed, just consistency
+  let h1 = 5381, h2 = 52711;
+  for(let i = 0; i < traits.length; i++){
+    const c = traits.charCodeAt(i);
+    h1 = ((h1 * 33) ^ c) >>> 0;
+    h2 = ((h2 * 37) ^ c) >>> 0;
   }
-  return id;
+  return h1.toString(36) + h2.toString(36);
 }
 
 function now(){
