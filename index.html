@@ -2934,6 +2934,32 @@ let studentTokenData = null;
 // ══════════════════════════════════════════════
 // AUTH (backed by Google Sheets — shared across all devices)
 // ══════════════════════════════════════════════
+
+// The current valid Apps Script deployment. Baked in so a fresh device (or
+// one still holding a stale URL from an earlier deployment) works without
+// any manual setup. Can still be overridden in the Settings tab.
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxBNUv_Z6Nh2aHewyiJbtFwrCyvcBjsToNK0DwQarlmiR11_CHcLOXmiTkyM9QhJpef0w/exec';
+
+// Deployment IDs that existed during development but are now dead. If a
+// browser still has one of these stored, silently upgrade it to the default.
+const DEAD_GAS_IDS = [
+  'AKfycbwW0MXG4aYmsR_EUGC4c-ZInm6qCGcWvolfuIwnMJwNh4ed053jN5iQuL_pAtslETTo6Q',
+  'AKfycbzJNfJQnAH0Kav0vvBUF-ceDkItsHRW9KrpnUoKMmRGu169qO6D0sLZotco4hABuVgqng',
+  'AKfycbwcmzaix6xkhZss3_JHlQjGWvU4zIlBay7ztKvyQUX6HlwW5OxLZoS-kgAbmr7RSMfYJQ',
+  'AKfycbzox1-2Obcib1mQAFQEkVTHWW3Vh6E7b8SdRHDkX9O86F3d4sszmObO04OQldQFKKxWvQ'
+];
+
+function healGasUrl(){
+  const stored = DB.get('gasUrl');
+  if(!stored){
+    DB.set('gasUrl', DEFAULT_GAS_URL);
+    return;
+  }
+  if(DEAD_GAS_IDS.some(id => stored.includes(id))){
+    DB.set('gasUrl', DEFAULT_GAS_URL);
+  }
+}
+
 function showAuthStage(stage){
   ['Url','Setup','Login','Loading'].forEach(s=>{
     const el = document.getElementById('authStage'+s);
@@ -2943,6 +2969,7 @@ function showAuthStage(stage){
 
 async function runAuthFlow(){
   showAuthStage('Loading');
+  healGasUrl();
   const gasUrl = DB.get('gasUrl');
   if(!gasUrl){
     showAuthStage('Url');
@@ -3222,13 +3249,22 @@ function init(){
         // If it already looks like a full URL, use it as-is (backward compatible
         // with older QR codes). Otherwise treat it as a bare deployment ID and
         // reconstruct the standard Apps Script Web App URL around it.
-        const resolvedUrl = decoded.includes('://')
+        let resolvedUrl = decoded.includes('://')
           ? decoded
           : `https://script.google.com/macros/s/${decoded}/exec`;
+        // If the QR carries a known-dead deployment (stale QR generated before
+        // a redeploy), transparently upgrade to the current built-in default.
+        if(DEAD_GAS_IDS.some(id => resolvedUrl.includes(id))){
+          resolvedUrl = DEFAULT_GAS_URL;
+        }
         DB.set('gasUrl', resolvedUrl);
       }catch(e){
         console.warn('Failed to decode GAS URL from QR link', e);
+        DB.set('gasUrl', DEFAULT_GAS_URL);
       }
+    } else {
+      // QR carried no backend info at all (very old QR) — use the default.
+      healGasUrl();
     }
     initStudentMode(token, parseInt(week));
   } else {
