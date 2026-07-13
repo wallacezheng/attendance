@@ -2563,22 +2563,6 @@ code{font-family:monospace;font-size:12px;background:#F1EFE8;padding:2px 6px;bor
       <p style="font-size:13px;color:#888884">連線中...</p>
     </div>
 
-    <!-- Always-visible helper: view/copy Apps Script code without needing to log in -->
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #E5E3DC">
-      <button onclick="toggleAuthGasCode()" id="authGasCodeToggle"
-        style="background:none;border:none;color:#7F77DD;font-size:12px;font-weight:600;cursor:pointer;padding:4px">
-        📋 還沒部署過？查看 / 複製 Apps Script 程式碼
-      </button>
-      <div id="authGasCodeBox" style="display:none;margin-top:10px;text-align:left">
-        <textarea id="authGasCode" readonly
-          style="width:100%;height:200px;font-family:monospace;font-size:10px;background:#1A1A18;color:#E8E6DF;border-radius:8px;padding:10px;resize:vertical;border:none"></textarea>
-        <button onclick="copyAuthGasCode()"
-          style="margin-top:8px;padding:6px 14px;background:#EEEDFE;color:#3C3489;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">
-          複製程式碼
-        </button>
-      </div>
-    </div>
-
   </div>
 </div>
 </div>
@@ -4310,22 +4294,10 @@ function doPost(e) {
 }
 `;
   document.getElementById('gasCode').value = code;
-  const preAuthBox = document.getElementById('authGasCode');
-  if(preAuthBox) preAuthBox.value = code;
 }
 
 function copyGasCode(){
   navigator.clipboard.writeText(document.getElementById('gasCode').value);
-  alert('已複製！');
-}
-
-function toggleAuthGasCode(){
-  const box = document.getElementById('authGasCodeBox');
-  box.style.display = (box.style.display === 'none') ? 'block' : 'none';
-}
-
-function copyAuthGasCode(){
-  navigator.clipboard.writeText(document.getElementById('authGasCode').value);
   alert('已複製！');
 }
 
@@ -4482,23 +4454,39 @@ async function initStudentMode(token, week){
 
   document.getElementById('step1').innerHTML = '<p style="text-align:center;color:var(--text3);padding:20px 0">載入中...</p>';
 
-  // Single combined request instead of three separate ones — meaningfully
-  // reduces total load time, especially against a cold-started Apps Script
-  // deployment, where each individual request pays its own overhead.
+  // Preferred path: single combined request (fast, one round trip). But if
+  // the deployed backend is an OLDER version that doesn't know this action,
+  // it replies {error:'unknown action'} — in that case fall back to the three
+  // legacy endpoints, which have existed in every backend version. This makes
+  // the frontend work regardless of which backend version is deployed.
+  let session = null, rosterRes = null, weeksRes = null, courseNameVal = '';
   const bootstrap = await gasGet('studentBootstrap', {});
-  const session = bootstrap ? bootstrap.session : null;
-  const rosterRes = bootstrap ? { roster: bootstrap.roster } : null;
-  const weeksRes = bootstrap ? { weeks: bootstrap.weeks } : null;
+  if(bootstrap && bootstrap.session){
+    session = bootstrap.session;
+    rosterRes = { roster: bootstrap.roster };
+    weeksRes = { weeks: bootstrap.weeks };
+    courseNameVal = bootstrap.courseName || '';
+  } else {
+    // Fallback: older backend (or transient failure) — try legacy endpoints
+    const [s, r, w] = await Promise.all([
+      gasGet('session', {}),
+      gasGet('roster', {}),
+      gasGet('weeks', {})
+    ]);
+    session = s;
+    rosterRes = r;
+    weeksRes = w;
+  }
 
-  if(bootstrap && bootstrap.courseName){
-    DB.set('courseName', bootstrap.courseName);
+  if(courseNameVal){
+    DB.set('courseName', courseNameVal);
   }
   if(weeksRes && weeksRes.weeks && weeksRes.weeks.length>0){
     DB.set('weeks', weeksRes.weeks);
   }
 
   if(!session){
-    showError('❌ 無法連線', '暫時連不上點名系統，請確認網路連線後重新整理頁面');
+    showError('❌ 無法連線', '暫時連不上點名系統，請將此畫面截圖給老師\n\n--- 診斷資訊 ---\n' + formatGasError() + '\n連線位址：' + (DB.get('gasUrl') || '（未設定）'));
     return;
   }
   if(!session.active){
@@ -4626,7 +4614,10 @@ function goStep(n){
 function showError(title, msg){
   goStep(5);
   document.getElementById('errorTitle').textContent = title;
-  document.getElementById('errorInfo').textContent = msg;
+  const info = document.getElementById('errorInfo');
+  info.textContent = msg;
+  info.style.whiteSpace = 'pre-wrap';
+  info.style.wordBreak = 'break-all';
 }
 
 function showStudentErr(el, msg){
