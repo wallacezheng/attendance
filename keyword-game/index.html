@@ -181,11 +181,20 @@ table.pl td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:t
     <div class="status" id="t-status"></div>
     <div class="trow">
       <div class="tstep"><h3>① 開放填寫</h3><p>學生掃 QR 填品牌定位、選關鍵字、出價。時間到就鎖定。</p><button id="t-toggle" class="btn"></button></div>
-      <div class="tstep"><h3>② AI 評分（SEO）</h3><p>依「相關性、具體性、價值清楚」給每則定位 1–10 分＝品質分數＋自然排名。</p><button id="t-score" class="btn amber">開始評分</button><button id="t-rule" class="btn ghost" style="padding:8px 12px;font-size:14px">AI 卡住？改用規則評分（立即）</button></div>
+      <div class="tstep"><h3>② AI 評分（SEO）</h3><p>依「相關性、具體性、價值清楚」給每則定位 1–10 分＝品質分數＋自然排名。</p><button id="t-score" class="btn amber">開始評分</button><button id="t-rule" class="btn ghost" style="padding:8px 12px;font-size:14px">AI 卡住？改用規則評分（立即）</button><button id="t-manual" class="btn ghost" style="padding:8px 12px;font-size:14px">沒有 API？手動 AI 評分</button></div>
       <div class="tstep"><h3>③ 模擬搜尋（SEM）</h3><p>依「出價 × 品質分數」排廣告位，按下方搜尋量產生點擊、扣預算。</p><button id="t-sim" class="btn amber">模擬搜尋</button></div>
       <div class="tstep"><h3>④ 下一輪</h3><p>保留品質分數、清空競價結果，開放學生改出價再比一次。學生若改了定位，記得再按一次 ②。</p><button id="t-round" class="btn ghost">開下一輪</button></div>
     </div>
     <div id="t-msg" style="margin:12px 0;font-weight:700"></div>
+    <div id="t-mpanel" class="card hidden">
+      <h3 style="margin:0 0 6px;color:var(--navy)">手動 AI 評分（不需要 API 金鑰）</h3>
+      <div class="hint" style="margin-bottom:10px">① 按「產生提示詞」並複製 → ② 貼到任何 AI 聊天（Gemini、ChatGPT、Claude 網頁版皆可）→ ③ 把 AI 回覆的 JSON 整段貼回下方 → ④ 匯入。沒貼到的會自動用規則評分補上。</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button id="m-gen" class="btn">① 產生提示詞</button><button id="m-copy" class="btn ghost">複製提示詞</button></div>
+      <textarea id="m-prompt" class="t" rows="6" readonly style="margin-top:10px;font-size:13px"></textarea>
+      <label class="f">③ 貼上 AI 回覆（JSON）</label>
+      <textarea id="m-result" class="t" rows="6" style="font-size:13px" placeholder='[{"i":0,"score":7,"reason":"…"}, …]'></textarea>
+      <button id="m-import" class="btn amber" style="margin-top:10px">④ 匯入分數</button>
+    </div>
 
     <div class="grid2">
       <div class="card">
@@ -504,6 +513,26 @@ function bindTeacher(){
     teacherRefresh();
   };
   $('t-score').onclick = () => runScore('score');
+  $('t-manual').onclick = () => $('t-mpanel').classList.toggle('hidden');
+  $('m-gen').onclick = async () => {
+    if (T.data.config.state === 'open') await tpost('setConfig', {patch:{state:'closed'}});
+    tmsg('產生提示詞中…');
+    const r = await tpost('exportPrompt');
+    if (!r.ok) { tmsg(r.error==='no_players' ? '還沒有學生資料。' : errText(r), true); return; }
+    T.mkeys = r.keys; $('m-prompt').value = r.prompt;
+    tmsg(`已產生 ${r.keys.length} 則的提示詞（已自動鎖定填寫），請複製貼到 AI 聊天。`);
+    teacherRefresh();
+  };
+  $('m-copy').onclick = async () => { $('m-prompt').select(); try { await navigator.clipboard.writeText($('m-prompt').value); tmsg('已複製'); } catch (e) { document.execCommand('copy'); tmsg('已複製'); } };
+  $('m-import').onclick = async () => {
+    if (!T.mkeys) { tmsg('請先按 ① 產生提示詞。', true); return; }
+    let arr;
+    try { const m = $('m-result').value.match(/\[[\s\S]*\]/); arr = JSON.parse(m ? m[0] : $('m-result').value); } catch (e) { tmsg('看不懂貼上的內容，請確認是 AI 回覆的 JSON 陣列。', true); return; }
+    const scores = []; arr.forEach(o => { const i = Number(o.i); if (i >= 0 && i < T.mkeys.length) scores[i] = {score:o.score, reason:o.reason}; });
+    const r = await tpost('importScores', {keys: T.mkeys, scores: T.mkeys.map((k,i) => scores[i] || null)});
+    r.ok ? tmsg(`已匯入 ${r.imported} 則 AI 分數` + (r.rule ? `，另有 ${r.rule} 則用規則評分補上` : '') + '。') : tmsg(r.error==='import_empty' ? '沒有對上任何一則，請確認貼的是這次產生的提示詞的回覆。' : errText(r), true);
+    teacherRefresh();
+  };
   $('t-rule').onclick = () => runScore('scoreRule');
   $('t-sim').onclick = async () => {
     $('t-sim').disabled = true; tmsg('模擬搜尋中…');
@@ -534,7 +563,7 @@ function bindTeacher(){
     }, 1000);
     const r = await tpost('testGemini', {}, 90000);
     clearInterval(tick); $('t-test').disabled = false;
-    if (r.ok) tmsg(`Gemini 連線正常（${Math.round((r.ms||0)/1000)} 秒）：範例評分 ` + r.sample.map(x => x ? x.score + ' 分（' + x.reason + '）' : '–').join('、'));
+    if (r.ok) tmsg(`${r.provider||'Gemini'} 連線正常（${Math.round((r.ms||0)/1000)} 秒）：範例評分 ` + r.sample.map(x => x ? x.score + ' 分（' + x.reason + '）' : '–').join('、'));
     else tmsg(r.error === 'no_gemini_key' ? '尚未設定 GEMINI_API_KEY，評分會改用規則評分。' : 'Gemini 連線失敗（會自動改用規則評分）：' + (r.detail || r.error), true);
   };
 }
