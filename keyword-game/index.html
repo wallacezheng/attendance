@@ -513,8 +513,14 @@ function bindTeacher(){
   };
   $('t-csv').onclick = downloadCsv;
   $('t-test').onclick = async () => {
-    tmsg('測試中…');
+    const t0 = Date.now();
+    $('t-test').disabled = true;
+    const tick = setInterval(() => {
+      const sec = Math.round((Date.now() - t0) / 1000);
+      tmsg(sec < 90 ? `測試中…已等 ${sec} 秒（Gemini 忙碌時會自動重試，最多約 1 分鐘）` : `已等 ${sec} 秒仍未回應：請到 Apps Script 左側「執行項目」查看最新一筆 doPost 的狀態與錯誤訊息。`, sec >= 90);
+    }, 1000);
     const r = await tpost('testGemini');
+    clearInterval(tick); $('t-test').disabled = false;
     if (r.ok) tmsg('Gemini 連線正常：範例評分 ' + r.sample.map(x => x ? x.score + ' 分（' + x.reason + '）' : '–').join('、'));
     else tmsg(r.error === 'no_gemini_key' ? '尚未設定 GEMINI_API_KEY，評分會改用規則評分。' : 'Gemini 連線失敗（會自動改用規則評分）：' + (r.detail || r.error), true);
   };
