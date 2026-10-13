@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>分組登記｜數位行銷傳播與實務</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --navy:#0E1B33;--navy2:#1F3A63;--blue:#2F5F95;--amber:#E3A33B;--amberT:#9A6412;
+  --light:#F5F3EE;--card:#FDFCF9;--tag:#E9E4D8;--line:#DAD5C8;--ink:#1B2433;--body:#4A5568;--mute:#5F6B7A;
+  --red:#B64B3A;--green:#2F7D53;--soft:#BFD0E6;
+  --s0:#E3A33B;--s1:#2F5F95;--s2:#B64B3A;--s3:#2F7D53;--s4:#1F3A63;--s5:#8A6BB0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--light);color:var(--ink);font-family:'Noto Sans TC',system-ui,sans-serif}
+button,input,select{font:inherit}
+.serif{font-family:'Noto Serif TC',Georgia,serif}
+.topbar{height:6px;background:var(--amber)}
+.hidden{display:none!important}
+.btn{border:0;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer;background:var(--navy);color:var(--light)}
+.btn.amber{background:var(--amber);color:var(--navy)}
+.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--navy)}
+.btn.red{background:var(--red)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.err{color:var(--red);font-weight:700}
+.muted{color:var(--mute)}
+.eyebrow{color:var(--amberT);font-weight:700;letter-spacing:2px;font-size:13px}
+h1.title{font-size:26px;font-weight:900;margin:6px 0 4px;color:var(--navy);line-height:1.3}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:14px 0}
+label.f{display:block;font-weight:700;color:var(--navy);margin:14px 0 6px}
+.hint{font-size:13px;color:var(--mute);margin-top:4px}
+input.t{width:100%;border:2px solid var(--line);border-radius:12px;padding:12px;background:#fff;font-size:16px}
+input.t:focus{outline:none;border-color:var(--blue)}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:2px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;font-weight:700;color:var(--navy);cursor:pointer;font-size:15px}
+.chip.on{background:var(--navy);border-color:var(--navy);color:var(--light)}
+.chip.sub.on{background:var(--amber);border-color:var(--amber);color:var(--navy)}
+.chip:disabled{opacity:.35}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode{border:2px solid var(--line);background:#fff;border-radius:14px;padding:12px 8px;text-align:center;cursor:pointer;color:var(--navy)}
+.mode b{display:block;font-size:16px}
+.mode span{font-size:12px;color:var(--mute)}
+.mode.on{border-color:var(--navy);background:var(--navy);color:var(--light)}
+.mode.on span{color:var(--soft)}
+.code{font-family:'Noto Serif TC',serif;font-size:44px;font-weight:900;letter-spacing:8px;color:var(--navy);background:var(--tag);border-radius:14px;padding:8px 16px;display:inline-block}
+.sk{display:inline-block;padding:2px 10px;border-radius:999px;font-size:13px;font-weight:700;color:#fff;margin:2px 2px 0 0}
+.mine{background:var(--navy);color:var(--light);border-radius:16px;padding:20px}
+.mine .g{font-size:56px;font-weight:900;color:var(--amber)}
+.mates li{margin:6px 0}
+
+/* 學生端 */
+#student{max-width:560px;margin:0 auto;padding:18px 16px 60px}
+
+/* 看板 */
+#board{min-height:100vh;display:flex;flex-direction:column}
+.bhead{display:flex;align-items:center;gap:18px;padding:18px 36px;background:var(--navy);color:var(--light)}
+.bhead h1{margin:0;font-size:30px;font-weight:900}
+.bhead .sp{flex:1}
+.bhead .num{font-size:15px;color:var(--soft)} .bhead .num b{font-size:34px;color:var(--amber);margin-right:4px}
+.bmain{flex:1;padding:24px 36px;display:grid;gap:24px}
+.bmain.join{grid-template-columns:400px 1fr}
+.qrbox{background:#fff;border-radius:20px;padding:26px;text-align:center;border:1px solid var(--line)}
+.qrbox #qr{display:flex;justify-content:center;margin:10px 0 14px}
+.qrbox .url{font-size:14px;color:var(--mute);word-break:break-all}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 26px}
+.panel h2{margin:0 0 14px;font-size:22px;color:var(--navy)}
+.dist{display:grid;grid-template-columns:120px 1fr 40px;gap:12px 14px;align-items:center;font-size:18px}
+.dist .bar{height:26px;border-radius:8px;min-width:4px;transition:width .5s}
+.sq{display:flex;gap:14px;margin-top:18px}
+.sq div{flex:1;background:var(--tag);border-radius:14px;padding:14px;text-align:center}
+.sq b{display:block;font-size:30px;color:var(--navy)}
+.groups{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.gcard{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:14px 16px;opacity:0;transform:translateY(10px);transition:all .5s}
+.gcard.show{opacity:1;transform:none}
+.gcard h3{margin:0 0 8px;font-size:22px;color:var(--navy);display:flex;justify-content:space-between;align-items:baseline}
+.gcard h3 small{font-size:14px;color:var(--mute)}
+.gcard .m{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-top:1px dashed var(--line);font-size:17px}
+.gcard .m:first-of-type{border-top:0}
+.gcard .m .q{font-size:11px;color:var(--amberT);font-weight:700;margin-left:4px}
+
+/* 老師端 */
+#teacher{max-width:1100px;margin:0 auto;padding:18px 20px 60px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.tgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tg{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}
+.tg h4{margin:0 0 6px;color:var(--navy)}
+.tg .m{font-size:14px;padding:3px 0;display:flex;justify-content:space-between;gap:6px}
+.warn{color:var(--red);font-size:13px;font-weight:700}
+table.list{width:100%;border-collapse:collapse;font-size:14px}
+table.list td,table.list th{border-bottom:1px solid var(--line);padding:6px;text-align:left}
+#t-msg{min-height:24px;font-weight:700;color:var(--blue);margin:8px 0}
+@media (max-width:900px){.tgrid{grid-template-columns:repeat(2,1fr)}.groups{grid-template-columns:repeat(2,1fr)}.bmain.join{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+
+<!-- ============ 學生端 ============ -->
+<div id="student" class="hidden">
+  <div class="eyebrow">數位行銷傳播與實務｜分組登記</div>
+  <h1 class="title">期中＋期末小組，從這裡開始</h1>
+  <div class="muted">先找 1–2 位想同組的夥伴組成「小隊」（也可以一個人）。老師會把小隊拼成 8 組，讓每組都有不同專長的人。</div>
+
+  <div id="s-form" class="card">
+    <label class="f">學號</label>
+    <input id="f-sid" class="t" autocomplete="off" placeholder="例：A114050001">
+    <label class="f">姓名</label>
+    <input id="f-name" class="t" maxlength="12" placeholder="組員要能認得你">
+    <label class="f">你的主要專長（選 1 個）</label>
+    <div id="f-main" class="chips"></div>
+    <label class="f">次要專長（可不選）</label>
+    <div id="f-sub" class="chips"></div>
+    <label class="f">小隊</label>
+    <div class="modes">
+      <div class="mode" data-m="create"><b>建立小隊</b><span>拿代碼給夥伴</span></div>
+      <div class="mode" data-m="join"><b>加入小隊</b><span>輸入夥伴的代碼</span></div>
+      <div class="mode" data-m="solo"><b>自己一個人</b><span>交給老師安排</span></div>
+    </div>
+    <div id="f-joinbox" class="hidden"><label class="f">小隊代碼（4 碼）</label><input id="f-code" class="t" maxlength="4" style="text-transform:uppercase;letter-spacing:6px;font-size:22px" placeholder="例：K7QP"></div>
+    <div class="hint" id="f-sqhint">一個小隊最多 3 人；同小隊一定會分在同一組。</div>
+    <p id="f-err" class="err"></p>
+    <button id="f-submit" class="btn amber" style="width:100%;font-size:18px">送出</button>
+  </div>
+
+  <div id="s-done" class="hidden">
+    <div id="s-group" class="mine hidden"></div>
+    <div class="card" id="s-squad"></div>
+    <div class="card">
+      <div id="s-info"></div>
+      <button id="s-edit" class="btn ghost" style="margin-top:12px">修改資料</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 看板 ============ -->
+<div id="board" class="hidden">
+  <div class="bhead"><h1>分組登記</h1><div class="sp"></div><div class="num"><b id="b-count">0</b>人已登記</div></div>
+  <div id="b-join" class="bmain join">
+    <div class="qrbox"><div class="eyebrow">手機掃碼登記</div><div id="qr"></div><div class="url" id="b-url"></div></div>
+    <div class="panel">
+      <h2>全班專長分布</h2>
+      <div id="b-dist" class="dist"></div>
+      <div class="sq"><div><b id="b-s1">0</b>單人</div><div><b id="b-s2">0</b>2 人小隊</div><div><b id="b-s3">0</b>3 人小隊</div></div>
+    </div>
+  </div>
+  <div id="b-res" class="bmain hidden"><div id="b-groups" class="groups"></div></div>
+</div>
+
+<!-- ============ 老師端 ============ -->
+<div id="teacher" class="hidden">
+  <div class="eyebrow">分組系統｜老師控制台</div>
+  <div id="t-login" class="card" style="max-width:420px">
+    <label class="f">老師密碼</label><input id="t-pw" class="t" type="password">
+    <p id="t-lerr" class="err"></p><button id="t-go" class="btn">登入</button>
+  </div>
+  <div id="t-app" class="hidden">
+    <div class="card">
+      <div class="row">
+        <b>狀態：</b><span id="t-state"></span>
+        <span class="muted">｜已登記 <b id="t-count">0</b> 人</span>
+        <span style="flex:1"></span>
+        <label>組數 <input id="t-groups" type="number" min="2" max="20" style="width:64px" class="t"></label>
+        <label>小隊上限 <input id="t-max" type="number" min="1" max="5" style="width:64px" class="t"></label>
+        <button id="t-save" class="btn ghost">儲存設定</button>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="t-lock" class="btn ghost">鎖定登記</button>
+        <button id="t-run" class="btn amber">執行分組</button>
+        <button id="t-pub" class="btn">公布到看板</button>
+        <button id="t-csv" class="btn ghost">匯出 CSV</button>
+        <a id="t-board" class="btn ghost" target="_blank" style="text-decoration:none">開啟看板</a>
+        <span style="flex:1"></span>
+        <button id="t-reset" class="btn red">全部重置</button>
+      </div>
+      <div id="t-msg"></div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">分組結果預覽 <small class="muted" id="t-ran"></small></h3><div id="t-groupsview" class="tgrid"></div>
+      <div class="row" style="margin-top:12px"><span>手動調整：把</span><select id="t-mv-sid" class="t" style="width:auto"></select><span>移到第</span><select id="t-mv-g" class="t" style="width:auto"></select><span>組</span><button id="t-mv" class="btn ghost">移動</button></div>
+    </div>
+    <div class="card"><h3 style="margin-top:0">登記名單</h3><table class="list" id="t-list"></table></div>
+  </div>
+</div>
+
+<script>
+const DEFAULT_GAS_URL = 'https://script.google.com/macros/s/AKfycbxYuxQHbYPDGkmNb8U3lFF5JMJXzhMJpE0r2YydX5T65UDfShL640-CSDuMqfuBThs/exec';
+const qs = new URLSearchParams(location.search);
+const store = {
+  get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+};
+const GAS_URL = qs.get('api') || DEFAULT_GAS_URL;
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const SKC = ['var(--s0)','var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)'];
+let SKILLS = ['企劃發想','文案寫作','視覺設計','影音剪輯','數據分析','簡報口說'];
+const skTag = s => s ? `<span class="sk" style="background:${SKC[Math.max(0,SKILLS.indexOf(s))]}">${esc(s)}</span>` : '';
+
+function baseUrl(view){ const u = new URL(location.href); u.search=''; if(view) u.searchParams.set('view',view); if(qs.get('api')) u.searchParams.set('api',qs.get('api')); return u.toString(); }
+async function call(url, opts, tries=3, timeoutMs=30000){
+  for (let i=1;i<=tries;i++){
+    const ctl = new AbortController(); const tm = setTimeout(()=>ctl.abort(), timeoutMs);
+    try{ const r = await fetch(url, Object.assign({signal:ctl.signal}, opts)); clearTimeout(tm); const t = await r.text(); if(!r.ok) throw new Error('HTTP '+r.status); return JSON.parse(t); }
+    catch(e){ clearTimeout(tm); if(e.name==='AbortError') return {ok:false,error:'timeout'}; if(i===tries) return {ok:false,error:'network',detail:String(e)}; await new Promise(r=>setTimeout(r,700*i)); }
+  }
+}
+const apiGet = (p={}) => call(GAS_URL+'?'+new URLSearchParams(Object.assign({action:'g_state',t:Date.now()},p)));
+const apiPost = b => call(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(b)},2);
+const ERR = { locked:'老師已經鎖定登記了，有問題請找老師。', missing:'學號和姓名都要填喔。', bad_main:'請選一個主要專長。', bad_sub:'次要專長不能和主要專長一樣。',
+  no_squad:'找不到這個小隊代碼，請再確認一次。', squad_full:'這個小隊已經滿了（最多 3 人）。', network:'連線失敗，請再按一次。', bad_pw:'密碼錯誤。',
+  no_teacher_pw:'後端還沒設定 TEACHER_PW。', unknown_action:'後端是舊版：請貼上新的 Code.gs 與 Grouping.gs，並部署「新版本」。', no_students:'還沒有人登記。', timeout:'等太久沒有回應，請再試一次。' };
+const errText = r => ERR[r && r.error] || ('發生錯誤：'+(r && (r.error||r.detail) || '未知'));
+
+/* ================= 學生端 ================= */
+const S = { main:'', sub:'', mode:'', sid:'', timer:null };
+function renderChips(){
+  $('f-main').innerHTML = SKILLS.map(s=>`<button type="button" class="chip ${S.main===s?'on':''}" data-s="${esc(s)}">${esc(s)}</button>`).join('');
+  $('f-sub').innerHTML = SKILLS.map(s=>`<button type="button" class="chip sub ${S.sub===s?'on':''}" data-s="${esc(s)}" ${S.main===s?'disabled':''}>${esc(s)}</button>`).join('');
+  document.querySelectorAll('.mode').forEach(m=>m.classList.toggle('on', m.dataset.m===S.mode));
+  $('f-joinbox').classList.toggle('hidden', S.mode!=='join');
+}
+async function studentInit(){
+  $('student').classList.remove('hidden');
+  S.sid = store.get('g_sid') || '';
+  $('f-sid').value = S.sid;
+  renderChips();
+  $('f-main').onclick = e => { const b=e.target.closest('.chip'); if(!b) return; S.main=b.dataset.s; if(S.sub===S.main) S.sub=''; renderChips(); };
+  $('f-sub').onclick = e => { const b=e.target.closest('.chip'); if(!b||b.disabled) return; S.sub = S.sub===b.dataset.s ? '' : b.dataset.s; renderChips(); };
+  document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{ S.mode=m.dataset.m; renderChips(); });
+  $('f-submit').onclick = submit;
+  $('s-edit').onclick = () => { $('s-done').classList.add('hidden'); $('s-form').classList.remove('hidden'); };
+  await refresh(true);
+  S.timer = setInterval(()=>refresh(false), 8000);
+}
+async function submit(){
+  const sid = $('f-sid').value.trim().toUpperCase(), name = $('f-name').value.trim();
+  $('f-err').textContent='';
+  if(!sid||!name) return $('f-err').textContent=ERR.missing;
+  if(!S.main) return $('f-err').textContent=ERR.bad_main;
+  if(!S.mode) return $('f-err').textContent='請選擇：建立小隊、加入小隊，或自己一個人。';
+  const code = $('f-code').value.trim().toUpperCase();
+  if(S.mode==='join' && code.length!==4) return $('f-err').textContent='小隊代碼是 4 碼。';
+  $('f-submit').disabled=true; $('f-submit').textContent='送出中…';
+  const r = await apiPost({action:'g_submit', sid, name, main:S.main, sub:S.sub, mode:S.mode, code});
+  $('f-submit').disabled=false; $('f-submit').textContent='送出';
+  if(!r.ok) return $('f-err').textContent=errText(r);
+  S.sid = sid; store.set('g_sid', sid);
+  await refresh(true);
+}
+async function refresh(first){
+  const r = await apiGet(S.sid ? {sid:S.sid} : {});
+  if(!r.ok) return;
+  if(r.skills) { SKILLS = r.skills; if(first) renderChips(); }
+  if(r.state!=='open'){ $('f-submit').disabled = true; $('f-err').textContent = ERR.locked; }
+  if(!r.me){ if(first){ $('s-form').classList.remove('hidden'); $('s-done').classList.add('hidden'); } return; }
+  const me = r.me;
+  if(first){ $('f-name').value=me.name; S.main=me.main; S.sub=me.sub; S.mode = me.squad ? (me.mates.length>1?'join':'create') : 'solo'; if(me.squad) $('f-code').value=me.squad; renderChips(); }
+  if(!$('s-form').classList.contains('hidden') && !first) return;
+  $('s-form').classList.add('hidden'); $('s-done').classList.remove('hidden');
+  $('s-squad').innerHTML = me.squad
+    ? `<div class="eyebrow">你的小隊代碼</div><div class="code">${esc(me.squad)}</div><p class="hint">把代碼給想同組的夥伴，請他選「加入小隊」輸入（最多 ${r.maxSquad} 人）。</p><b>目前成員：</b><ul class="mates">${me.mates.map(n=>`<li>${esc(n)}</li>`).join('')}</ul>`
+    : `<div class="eyebrow">小隊</div><p>你選擇自己一個人，老師會幫你安排組別。</p>`;
+  $('s-info').innerHTML = `<b>${esc(me.name)}</b>（${esc(me.sid)}）<br>專長：${skTag(me.main)}${skTag(me.sub)}<p class="hint">${r.state==='open'?'老師鎖定前都可以修改。':'登記已鎖定。'}</p>`;
+  $('s-edit').classList.toggle('hidden', r.state!=='open');
+  if(r.published && me.group){
+    const grp = (r.result||[])[me.group-1] || [];
+    $('s-group').classList.remove('hidden');
+    $('s-group').innerHTML = `<div class="eyebrow" style="color:var(--amber)">分組結果</div><div>你在</div><div class="g serif">第 ${me.group} 組</div><ul class="mates">${grp.map(m=>`<li>${esc(m.name)} ${skTag(m.main)}</li>`).join('')}</ul>`;
+  } else $('s-group').classList.add('hidden');
+}
+
+/* ================= 看板 ================= */
+let lastPub = null;
+async function boardInit(){
+  $('board').classList.remove('hidden');
+  const url = baseUrl(''); $('b-url').textContent = url.replace(/^https?:\/\//,'');
+  if(window.QRCode) new QRCode($('qr'), {text:url, width:300, height:300, colorDark:'#0E1B33', colorLight:'#ffffff'});
+  await boardTick(); setInterval(boardTick, 4000);
+}
+async function boardTick(){
+  const r = await apiGet(); if(!r.ok) return;
+  SKILLS = r.skills || SKILLS;
+  $('b-count').textContent = r.count;
+  const mx = Math.max(1, ...Object.values(r.dist));
+  $('b-dist').innerHTML = SKILLS.map((s,i)=>`<div>${esc(s)}</div><div><div class="bar" style="width:${r.dist[s]/mx*100}%;background:${SKC[i]}"></div></div><div><b>${r.dist[s]}</b></div>`).join('');
+  $('b-s1').textContent = r.squadSizes[1]||0; $('b-s2').textContent = r.squadSizes[2]||0; $('b-s3').textContent = r.squadSizes[3]||0;
+  const pub = r.published && r.result;
+  $('b-join').classList.toggle('hidden', !!pub); $('b-res').classList.toggle('hidden', !pub);
+  if(pub){
+    const sig = JSON.stringify(r.result);
+    if(sig === lastPub) return; lastPub = sig;
+    $('b-groups').innerHTML = r.result.map((g,i)=>`<div class="gcard"><h3><span class="serif">第 ${i+1} 組</span><small>${g.length} 人</small></h3>${g.map(m=>`<div class="m"><span>${esc(m.name)}${m.squad?`<span class="q">${esc(m.squad)}</span>`:''}</span>${skTag(m.main)}</div>`).join('')}</div>`).join('');
+    document.querySelectorAll('.gcard').forEach((c,i)=>setTimeout(()=>c.classList.add('show'), 350*i));
+  } else lastPub = null;
+}
+
+/* ================= 老師端 ================= */
+const T = { pw:'', data:null };
+function tmsg(t){ $('t-msg').textContent = t; }
+async function tpost(action, extra={}){ return apiPost(Object.assign({action, pw:T.pw}, extra)); }
+async function teacherInit(){
+  $('teacher').classList.remove('hidden');
+  $('t-board').href = baseUrl('board');
+  $('t-go').onclick = async () => {
+    T.pw = $('t-pw').value; const r = await tpost('g_teacher');
+    if(!r.ok) return $('t-lerr').textContent = errText(r);
+    $('t-login').classList.add('hidden'); $('t-app').classList.remove('hidden'); render(r);
+    setInterval(async()=>{ const x = await tpost('g_teacher'); if(x.ok) render(x); }, 10000);
+  };
+  $('t-save').onclick = async () => { const r = await tpost('g_config',{patch:{groups:$('t-groups').value, maxSquad:$('t-max').value}}); r.ok ? (render(r), tmsg('設定已儲存')) : tmsg(errText(r)); };
+  $('t-lock').onclick = async () => { const open = T.data.config.state==='open'; const r = await tpost('g_config',{patch:{state: open?'locked':'open'}}); r.ok ? (render(r), tmsg(open?'已鎖定登記':'已重新開放登記')) : tmsg(errText(r)); };
+  $('t-run').onclick = async () => {
+    if(T.data.result && !confirm('重新分組會覆蓋目前的結果，確定嗎？')) return;
+    tmsg('分組計算中…'); const r = await tpost('g_run'); r.ok ? (render(r), tmsg('分組完成（登記已自動鎖定）。不滿意可以再按一次，會換一種組合。')) : tmsg(errText(r)); };
+  $('t-pub').onclick = async () => { const on = !T.data.config.published; const r = await tpost('g_publish',{on}); r.ok ? (render(r), tmsg(on?'已公布：看板與同學手機都會顯示結果':'已取消公布')) : tmsg(errText(r)); };
+  $('t-mv').onclick = async () => { const r = await tpost('g_move',{sid:$('t-mv-sid').value, group:$('t-mv-g').value}); r.ok ? (render(r), tmsg('已移動')) : tmsg(errText(r)); };
+  $('t-reset').onclick = async () => { if(!confirm('會清空所有登記與分組結果，確定嗎？')) return; const r = await tpost('g_reset'); r.ok ? (render(r), tmsg('已全部重置')) : tmsg(errText(r)); };
+  $('t-csv').onclick = () => {
+    const d = T.data, map = d.result ? d.result.map : {};
+    const rows = [['組別','學號','姓名','主要專長','次要專長','小隊代碼']].concat(d.students.map(s=>[map[s.sid]!==undefined?map[s.sid]+1:'',s.sid,s.name,s.main,s.sub,s.squad]).sort((a,b)=>(a[0]||99)-(b[0]||99)));
+    const csv = '﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download = '分組結果.csv'; a.click();
+  };
+  document.addEventListener('click', async e => { const b = e.target.closest('[data-del]'); if(!b) return; if(!confirm('刪除 '+b.dataset.del+'？')) return; const r = await tpost('g_delete',{sid:b.dataset.del}); r.ok ? render(r) : tmsg(errText(r)); });
+}
+function render(d){
+  T.data = d; SKILLS = d.skills || SKILLS;
+  const c = d.config;
+  $('t-state').innerHTML = c.state==='open' ? '<b style="color:var(--green)">開放登記中</b>' : '<b style="color:var(--red)">已鎖定</b>';
+  $('t-lock').textContent = c.state==='open' ? '鎖定登記' : '重新開放登記';
+  $('t-pub').textContent = c.published ? '取消公布' : '公布到看板';
+  $('t-count').textContent = d.students.length;
+  if(document.activeElement !== $('t-groups')) $('t-groups').value = c.groups;
+  if(document.activeElement !== $('t-max')) $('t-max').value = c.maxSquad;
+  $('t-ran').textContent = c.ranAt ? '（分組時間 '+new Date(c.ranAt).toLocaleTimeString()+(c.published?'・已公布':'・未公布')+'）' : '';
+  const map = d.result ? d.result.map : null;
+  if(map){
+    const G = d.result.G, gs = Array.from({length:G},()=>[]);
+    d.students.forEach(s=>{ if(map[s.sid]!==undefined) gs[map[s.sid]].push(s); });
+    const unassigned = d.students.filter(s=>map[s.sid]===undefined);
+    $('t-groupsview').innerHTML = gs.map((g,i)=>{
+      const have = new Set(g.flatMap(s=>[s.main,s.sub]));
+      const miss = SKILLS.filter(k=>!have.has(k));
+      return `<div class="tg"><h4>第 ${i+1} 組（${g.length} 人）</h4>${g.map(s=>`<div class="m"><span>${esc(s.name)}${s.squad?` <small class="muted">${esc(s.squad)}</small>`:''}</span>${skTag(s.main)}</div>`).join('')}${miss.length?`<div class="warn">缺：${miss.join('、')}</div>`:''}</div>`;
+    }).join('') + (unassigned.length ? `<div class="tg"><h4>分組後才登記（未分組）</h4>${unassigned.map(s=>`<div class="m">${esc(s.name)}</div>`).join('')}<div class="hint">請用下方「手動調整」放進某組，或重新分組。</div></div>` : '');
+    $('t-mv-sid').innerHTML = d.students.map(s=>`<option value="${esc(s.sid)}">${esc(s.name)}（${map[s.sid]!==undefined?'第'+(map[s.sid]+1)+'組':'未分組'}）</option>`).join('');
+    $('t-mv-g').innerHTML = Array.from({length:G},(_,i)=>`<option>${i+1}</option>`).join('');
+  } else { $('t-groupsview').innerHTML = '<div class="muted">還沒分組。登記完成後按「執行分組」。</div>'; $('t-mv-sid').innerHTML=''; $('t-mv-g').innerHTML=''; }
+  $('t-list').innerHTML = '<tr><th>學號</th><th>姓名</th><th>主要</th><th>次要</th><th>小隊</th><th></th></tr>' +
+    d.students.map(s=>`<tr><td>${esc(s.sid)}</td><td>${esc(s.name)}</td><td>${skTag(s.main)}</td><td>${skTag(s.sub)}</td><td>${esc(s.squad)}</td><td><button class="btn ghost" style="padding:4px 10px" data-del="${esc(s.sid)}">刪除</button></td></tr>`).join('');
+}
+
+/* ================= 啟動 ================= */
+const view = qs.get('view');
+if(view==='board') boardInit(); else if(view==='teacher') teacherInit(); else studentInit();
+</script>
+</body>
+</html>
