@@ -105,6 +105,8 @@ table.list td,table.list th{border-bottom:1px solid var(--line);padding:6px;text
   <div class="muted">先找 1–2 位想同組的夥伴組成「小隊」（也可以一個人）。老師會把小隊拼成 8 組，讓每組都有不同專長的人。</div>
 
   <div id="s-form" class="card">
+    <div id="f-proxy" class="hidden" style="background:var(--amber);color:var(--navy);border-radius:12px;padding:10px 14px;font-weight:700;margin-bottom:6px">代填模式：幫同學登記，不會改到你自己的資料<br><a href="#" id="f-proxy-exit" style="color:var(--navy);font-size:14px">← 回到我自己的登記</a></div>
+    <div id="f-ok" class="hidden" style="background:#EAF4EE;border-radius:12px;padding:10px 14px;font-weight:700;color:var(--green);margin-bottom:6px"></div>
     <label class="f">學號</label>
     <input id="f-sid" class="t" autocomplete="off" placeholder="例：A114050001">
     <label class="f">姓名</label>
@@ -123,6 +125,7 @@ table.list td,table.list th{border-bottom:1px solid var(--line);padding:6px;text
     <div class="hint" id="f-sqhint">一個小隊最多 3 人；同小隊一定會分在同一組。</div>
     <p id="f-err" class="err"></p>
     <button id="f-submit" class="btn amber" style="width:100%;font-size:18px">送出</button>
+    <p style="text-align:center;margin:14px 0 0"><a href="#" class="proxy-link" style="color:var(--blue);font-size:14px">同學手機連不上？幫他登記 →</a></p>
   </div>
 
   <div id="s-done" class="hidden">
@@ -131,6 +134,7 @@ table.list td,table.list th{border-bottom:1px solid var(--line);padding:6px;text
     <div class="card">
       <div id="s-info"></div>
       <button id="s-edit" class="btn ghost" style="margin-top:12px">修改資料</button>
+      <p style="margin:14px 0 0"><a href="#" class="proxy-link" style="color:var(--blue);font-size:14px">同學手機連不上？幫他登記 →</a></p>
     </div>
   </div>
 </div>
@@ -180,6 +184,17 @@ table.list td,table.list th{border-bottom:1px solid var(--line);padding:6px;text
     <div class="card"><h3 style="margin-top:0">分組結果預覽 <small class="muted" id="t-ran"></small></h3><div id="t-groupsview" class="tgrid"></div>
       <div class="row" style="margin-top:12px"><span>手動調整：把</span><select id="t-mv-sid" class="t" style="width:auto"></select><span>移到第</span><select id="t-mv-g" class="t" style="width:auto"></select><span>組</span><button id="t-mv" class="btn ghost">移動</button></div>
     </div>
+    <div class="card"><h3 style="margin-top:0">代填登記 <small class="muted">（同學手機連不上時用；鎖定後也能補登）</small></h3>
+      <div class="row">
+        <input id="p-sid" class="t" placeholder="學號" style="width:140px">
+        <input id="p-name" class="t" placeholder="姓名" style="width:120px">
+        <select id="p-main" class="t" style="width:auto"></select>
+        <select id="p-sub" class="t" style="width:auto"></select>
+        <select id="p-mode" class="t" style="width:auto"><option value="solo">自己一個人</option><option value="join">加入小隊</option><option value="create">建立小隊</option></select>
+        <input id="p-code" class="t" placeholder="小隊代碼" maxlength="4" style="width:110px;text-transform:uppercase">
+        <button id="p-go" class="btn amber">送出</button>
+      </div>
+    </div>
     <div class="card"><h3 style="margin-top:0">登記名單</h3><table class="list" id="t-list"></table></div>
   </div>
 </div>
@@ -214,7 +229,14 @@ const ERR = { locked:'老師已經鎖定登記了，有問題請找老師。', m
 const errText = r => ERR[r && r.error] || ('發生錯誤：'+(r && (r.error||r.detail) || '未知'));
 
 /* ================= 學生端 ================= */
-const S = { main:'', sub:'', mode:'', sid:'', timer:null };
+const S = { main:'', sub:'', mode:'', sid:'', timer:null, proxy:false };
+function setProxy(on){
+  S.proxy = on; $('f-proxy').classList.toggle('hidden', !on); $('f-ok').classList.add('hidden');
+  ['f-sid','f-name','f-code'].forEach(id=>$(id).value='');
+  S.main=''; S.sub=''; S.mode=''; renderChips(); $('f-err').textContent='';
+  if(on){ $('s-done').classList.add('hidden'); $('s-form').classList.remove('hidden'); $('f-submit').disabled=false; window.scrollTo(0,0); }
+  else { $('f-sid').value = S.sid; refresh(true); }
+}
 function renderChips(){
   $('f-main').innerHTML = SKILLS.map(s=>`<button type="button" class="chip ${S.main===s?'on':''}" data-s="${esc(s)}">${esc(s)}</button>`).join('');
   $('f-sub').innerHTML = SKILLS.map(s=>`<button type="button" class="chip sub ${S.sub===s?'on':''}" data-s="${esc(s)}" ${S.main===s?'disabled':''}>${esc(s)}</button>`).join('');
@@ -231,6 +253,8 @@ async function studentInit(){
   document.querySelectorAll('.mode').forEach(m=>m.onclick=()=>{ S.mode=m.dataset.m; renderChips(); });
   $('f-submit').onclick = submit;
   $('s-edit').onclick = () => { $('s-done').classList.add('hidden'); $('s-form').classList.remove('hidden'); };
+  document.querySelectorAll('.proxy-link').forEach(a=>a.onclick=e=>{ e.preventDefault(); setProxy(true); });
+  $('f-proxy-exit').onclick = e => { e.preventDefault(); setProxy(false); };
   await refresh(true);
   S.timer = setInterval(()=>refresh(false), 8000);
 }
@@ -246,6 +270,10 @@ async function submit(){
   const r = await apiPost({action:'g_submit', sid, name, main:S.main, sub:S.sub, mode:S.mode, code});
   $('f-submit').disabled=false; $('f-submit').textContent='送出';
   if(!r.ok) return $('f-err').textContent=errText(r);
+  if(S.proxy){
+    const msg = `已幫 ${name}（${sid}）登記完成` + (r.squad ? `，小隊代碼 ${r.squad}` : '') + '。可以繼續幫下一位。';
+    setProxy(true); $('f-ok').textContent = msg; $('f-ok').classList.remove('hidden'); return;
+  }
   S.sid = sid; store.set('g_sid', sid);
   await refresh(true);
 }
@@ -254,6 +282,7 @@ async function refresh(first){
   if(!r.ok) return;
   if(r.skills) { SKILLS = r.skills; if(first) renderChips(); }
   if(r.state!=='open'){ $('f-submit').disabled = true; $('f-err').textContent = ERR.locked; }
+  if(S.proxy) return;
   if(!r.me){ if(first){ $('s-form').classList.remove('hidden'); $('s-done').classList.add('hidden'); } return; }
   const me = r.me;
   if(first){ $('f-name').value=me.name; S.main=me.main; S.sub=me.sub; S.mode = me.squad ? (me.mates.length>1?'join':'create') : 'solo'; if(me.squad) $('f-code').value=me.squad; renderChips(); }
@@ -323,10 +352,20 @@ async function teacherInit(){
     const csv = '﻿'+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download = '分組結果.csv'; a.click();
   };
+  $('p-go').onclick = async () => {
+    const body = {sid:$('p-sid').value.trim(), name:$('p-name').value.trim(), main:$('p-main').value, sub:$('p-sub').value, mode:$('p-mode').value, code:$('p-code').value.trim().toUpperCase()};
+    if(!body.sid||!body.name) return tmsg(ERR.missing);
+    const r = await tpost('g_submit', body);
+    if(!r.ok) return tmsg(errText(r));
+    tmsg(`已代填 ${body.name}` + (r.squad?`（小隊代碼 ${r.squad}）`:'') + (T.data.result?'。已經分過組：請用「手動調整」把他放進某一組。':''));
+    ['p-sid','p-name','p-code'].forEach(id=>$(id).value='');
+    const x = await tpost('g_teacher'); if(x.ok) render(x);
+  };
   document.addEventListener('click', async e => { const b = e.target.closest('[data-del]'); if(!b) return; if(!confirm('刪除 '+b.dataset.del+'？')) return; const r = await tpost('g_delete',{sid:b.dataset.del}); r.ok ? render(r) : tmsg(errText(r)); });
 }
 function render(d){
   T.data = d; SKILLS = d.skills || SKILLS;
+  if(!$('p-main').options.length){ $('p-main').innerHTML = SKILLS.map(s=>`<option>${esc(s)}</option>`).join(''); $('p-sub').innerHTML = '<option value="">（無次要專長）</option>' + SKILLS.map(s=>`<option>${esc(s)}</option>`).join(''); }
   const c = d.config;
   $('t-state').innerHTML = c.state==='open' ? '<b style="color:var(--green)">開放登記中</b>' : '<b style="color:var(--red)">已鎖定</b>';
   $('t-lock').textContent = c.state==='open' ? '鎖定登記' : '重新開放登記';
