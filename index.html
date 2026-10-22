@@ -4366,13 +4366,21 @@ async function testGasConnection(){
 
 let lastGasError = null;
 
+// Abort a backend request that hangs, so the student sees a retry/error
+// instead of an endless loading spinner.
+function timeoutSignal(ms){
+  if(typeof AbortSignal !== 'undefined' && AbortSignal.timeout) return AbortSignal.timeout(ms);
+  if(typeof AbortController === 'undefined') return undefined;
+  const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal;
+}
+
 async function gasGet(action, params){
   const base = DB.get('gasUrl');
   if(!base) return null;
   let url = base + (base.includes('?') ? '&' : '?') + 'action=' + encodeURIComponent(action);
   if(params) Object.keys(params).forEach(k => { url += '&' + k + '=' + encodeURIComponent(params[k]); });
   try{
-    const r = await fetch(url, { method:'GET' });
+    const r = await fetch(url, { method:'GET', signal: timeoutSignal(20000) });
     const bodyText = await r.text();
     if(!r.ok){
       lastGasError = { action, type:'http_status', status:r.status, body: bodyText.slice(0,300) };
@@ -4400,6 +4408,7 @@ async function gasPost(action, data){
   try{
     const r = await fetch(url, {
       method:'POST',
+      signal: timeoutSignal(25000),
       headers:{'Content-Type':'text/plain;charset=utf-8'},
       body: JSON.stringify({ action, ...data })
     });
@@ -4502,23 +4511,26 @@ async function initStudentMode(token, week){
   // it replies {error:'unknown action'} — in that case fall back to the three
   // legacy endpoints, which have existed in every backend version. This makes
   // the frontend work regardless of which backend version is deployed.
+  // When the whole class scans the same QR at once, Apps Script queues or
+  // drops requests (it only runs a limited number of executions at a time).
+  // So: (1) go straight to the three endpoints every backend version has,
+  // instead of first trying studentBootstrap (the deployed backend answers
+  // "unknown action", which cost every student an extra serial round trip);
+  // (2) if the backend doesn't answer, wait a random 2–5 s and retry, so a
+  // burst of 50 phones spreads out instead of hammering it in lockstep.
   let session = null, rosterRes = null, weeksRes = null, courseNameVal = '';
-  const bootstrap = await gasGet('studentBootstrap', {});
-  if(bootstrap && bootstrap.session){
-    session = bootstrap.session;
-    rosterRes = { roster: bootstrap.roster };
-    weeksRes = { weeks: bootstrap.weeks };
-    courseNameVal = bootstrap.courseName || '';
-  } else {
-    // Fallback: older backend (or transient failure) — try legacy endpoints
+  for(let attempt = 1; attempt <= 5; attempt++){
     const [s, r, w] = await Promise.all([
       gasGet('session', {}),
       gasGet('roster', {}),
       gasGet('weeks', {})
     ]);
-    session = s;
-    rosterRes = r;
-    weeksRes = w;
+    session = s; rosterRes = r; weeksRes = w;
+    if(session && rosterRes && rosterRes.roster) break;
+    if(attempt < 5){
+      document.getElementById('step1').innerHTML = '<p style="text-align:center;color:var(--text3);padding:20px 0">同時簽到的人比較多，正在自動重試（' + attempt + '/4）…<br>請不要關閉或重新整理這個頁面</p>';
+      await new Promise(res => setTimeout(res, 2000 + Math.random() * 3000));
+    }
   }
 
   if(courseNameVal){
@@ -4607,10 +4619,18 @@ async function submitAttendance(){
   btn.textContent = '送出中...';
   btn.disabled = true;
 
-  const res = await gasPost('submitAttendance', {
+  const payload = {
     week, id: student.id, answer: ans, token: studentTokenData.token,
     device: getDeviceId(), date: wInfo ? wInfo.date : ''
-  });
+  };
+  let res = await gasPost('submitAttendance', payload);
+  for(let attempt = 1; !res && attempt <= 2; attempt++){
+    // Backend busy (whole class submitting at once) — wait and retry.
+    // Safe to repeat: the server rejects a second row as already_signed.
+    btn.textContent = '人有點多，重試中...';
+    await new Promise(r => setTimeout(r, 2000 + Math.random() * 3000));
+    res = await gasPost('submitAttendance', payload);
+  }
 
   btn.textContent = originalText;
   btn.disabled = false;
