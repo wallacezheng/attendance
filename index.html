@@ -3365,7 +3365,8 @@ async function startSession(){
   qrInterval = setInterval(rotateQR, 120000);
   startTimer();
   loadLiveList();
-  setInterval(loadLiveList, 5000);
+  clearInterval(window._liveListTimer);
+  window._liveListTimer = setInterval(loadLiveList, 10000);
 }
 
 function rotateQR(){
@@ -3539,6 +3540,7 @@ function buildQrPopupHtml(initialUrl, week, wInfo){
 
 
 function stopSession(){
+  clearInterval(window._liveListTimer);
   clearInterval(qrInterval);
   clearInterval(timerInterval);
   DB.set('session', { active: false });
@@ -3977,9 +3979,17 @@ function appendAttendanceRow(sheet, rowValues) {
   sheet.getRange(lastRow, 6).setNumberFormat('@').setValue(String(rowValues[5]));
 }
 
+// Per-request memo of the State sheet. getSessionData() alone asks for 7
+// keys; re-reading the sheet for each one made every student request do
+// ~7 spreadsheet reads. Now it is one read per request.
+var STATE_ROWS = null;
+function stateRows() {
+  if (!STATE_ROWS) STATE_ROWS = getSheet('State').getDataRange().getValues();
+  return STATE_ROWS;
+}
+
 function stateGet(key) {
-  var sheet = getSheet('State');
-  var data = sheet.getDataRange().getValues();
+  var data = stateRows();
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] === key) {
       var val = data[i][1];
@@ -3999,15 +4009,17 @@ function stateGet(key) {
 
 function stateSet(key, value) {
   var sheet = getSheet('State');
-  var data = sheet.getDataRange().getValues();
+  var data = stateRows();
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] === key) {
       var cell = sheet.getRange(i + 1, 2);
       cell.setNumberFormat('@'); // force plain text, prevent auto type coercion
       cell.setValue(String(value));
+      data[i][1] = String(value);
       return;
     }
   }
+  data.push([key, String(value)]);
   var newRow = sheet.getLastRow() + 1;
   sheet.getRange(newRow, 1).setValue(key);
   var valueCell = sheet.getRange(newRow, 2);
@@ -4087,6 +4099,31 @@ function getRosterData() {
   return roster;
 }
 
+// ── Student bootstrap cache ──
+// When 60 phones scan at once, almost every request asks for the same
+// session/roster/weeks. Serve it from CacheService; any teacher write
+// (token rotation, session, roster, weeks, course name) clears it.
+var BOOT_CACHE_KEY = 'studentBootstrap_v1';
+function buildBootstrap() {
+  return {
+    session: getSessionData(),
+    roster: getRosterData(),
+    weeks: getWeeksData(),
+    courseName: stateGet('courseName') || ''
+  };
+}
+function getBootstrapCached() {
+  var cache = CacheService.getScriptCache();
+  var hit = cache.get(BOOT_CACHE_KEY);
+  if (hit) return JSON.parse(hit);
+  var data = buildBootstrap();
+  try { cache.put(BOOT_CACHE_KEY, JSON.stringify(data), 300); } catch (err) {}
+  return data;
+}
+function clearBootstrapCache() {
+  try { CacheService.getScriptCache().remove(BOOT_CACHE_KEY); } catch (err) {}
+}
+
 function getWeeksData() {
   var raw = stateGet('weeks');
   return raw ? JSON.parse(raw) : [];
@@ -4119,12 +4156,7 @@ function doGet(e) {
     // Combines session + roster + weeks + courseName into a single round
     // trip. Used by the student-facing scan flow specifically to minimize
     // Apps Script cold-start latency.
-    return jsonOut({
-      session: getSessionData(),
-      roster: getRosterData(),
-      weeks: getWeeksData(),
-      courseName: stateGet('courseName') || ''
-    });
+    return jsonOut(getBootstrapCached());
   }
 
   if (action === 'courseName') {
@@ -4209,17 +4241,20 @@ function doPost(e) {
     if (rows.length > 0) {
       sheet.getRange(2, 1, rows.length, 2).setValues(rows);
     }
+    clearBootstrapCache();
     return jsonOut({ result: 'ok' });
   }
 
   // ── WEEKS ──
   if (action === 'setWeeks') {
     stateSet('weeks', JSON.stringify(body.weeks || []));
+    clearBootstrapCache();
     return jsonOut({ result: 'ok' });
   }
 
   if (action === 'setCourseName') {
     stateSet('courseName', String(body.courseName || ''));
+    clearBootstrapCache();
     return jsonOut({ result: 'ok' });
   }
 
@@ -4229,6 +4264,7 @@ function doPost(e) {
     stateSet('week', body.week || '');
     stateSet('question', body.question || '');
     stateSet('answer', body.answer || '');
+    clearBootstrapCache();
     return jsonOut({ result: 'ok' });
   }
 
@@ -4245,6 +4281,7 @@ function doPost(e) {
     }
     stateSet('token', body.token || '');
     stateSet('tokenTs', String(Date.now()));
+    clearBootstrapCache();
     return jsonOut({ result: 'ok' });
   }
 
@@ -4287,8 +4324,11 @@ function doPost(e) {
     }
     if (!studentName) return jsonOut({ success: false, reason: 'id_not_found' });
 
+    var lock = LockService.getScriptLock();
+    if (!lock.tryLock(20000)) return jsonOut({ success: false, reason: 'busy' });
+    try {
     var attSheet = getSheet('Attendance');
-    var attData = attSheet.getDataRange().getValues();
+    var attData = attSheet.getRange(1, 1, Math.max(attSheet.getLastRow(), 1), 7).getValues();
     for (var j = 1; j < attData.length; j++) {
       if (String(attData[j][0]) === String(week)) {
         // Same student already signed this week
@@ -4311,6 +4351,9 @@ function doPost(e) {
     appendAttendanceRow(attSheet, [week, dateStr, id, studentName, '出席', timeStr, device]);
 
     return jsonOut({ success: true, name: studentName, time: timeStr });
+    } finally {
+      lock.releaseLock();
+    }
   }
 
   if (action === 'manualSign') {
@@ -4513,19 +4556,26 @@ async function initStudentMode(token, week){
   // the frontend work regardless of which backend version is deployed.
   // When the whole class scans the same QR at once, Apps Script queues or
   // drops requests (it only runs a limited number of executions at a time).
-  // So: (1) go straight to the three endpoints every backend version has,
-  // instead of first trying studentBootstrap (the deployed backend answers
-  // "unknown action", which cost every student an extra serial round trip);
-  // (2) if the backend doesn't answer, wait a random 2–5 s and retry, so a
+  // So: (1) use the single cached studentBootstrap request (falling back to
+  // the three legacy endpoints only on an old backend that answers
+  // "unknown action"); (2) if the backend doesn't answer, wait a random 2–5 s and retry, so a
   // burst of 50 phones spreads out instead of hammering it in lockstep.
   let session = null, rosterRes = null, weeksRes = null, courseNameVal = '';
   for(let attempt = 1; attempt <= 5; attempt++){
-    const [s, r, w] = await Promise.all([
-      gasGet('session', {}),
-      gasGet('roster', {}),
-      gasGet('weeks', {})
-    ]);
-    session = s; rosterRes = r; weeksRes = w;
+    const boot = await gasGet('studentBootstrap', {});
+    if(boot && boot.session){
+      // Current backend: one cached request carries everything.
+      session = boot.session; rosterRes = { roster: boot.roster };
+      weeksRes = { weeks: boot.weeks }; courseNameVal = boot.courseName || '';
+    } else if(boot && boot.error){
+      // Older deployed backend without studentBootstrap — legacy endpoints.
+      const [s, r, w] = await Promise.all([
+        gasGet('session', {}),
+        gasGet('roster', {}),
+        gasGet('weeks', {})
+      ]);
+      session = s; rosterRes = r; weeksRes = w;
+    }
     if(session && rosterRes && rosterRes.roster) break;
     if(attempt < 5){
       document.getElementById('step1').innerHTML = '<p style="text-align:center;color:var(--text3);padding:20px 0">同時簽到的人比較多，正在自動重試（' + attempt + '/4）…<br>請不要關閉或重新整理這個頁面</p>';
@@ -4648,6 +4698,7 @@ async function submitAttendance(){
       wrong_answer: '答案不正確，請再想想！',
       id_not_found: '找不到此學號，請聯絡老師',
       already_signed: '此學號本週已完成簽到',
+      busy: '同時簽到的人太多，請稍等幾秒再按一次送出',
       device_already_used: '這台裝置本週已幫其他同學完成簽到，每台裝置每週僅能簽到一次。如有特殊狀況請告知老師手動補填'
     }[res.reason] || '簽到失敗，請聯絡老師';
 
@@ -4727,7 +4778,20 @@ function getDeviceId(){
     h1 = ((h1 * 33) ^ c) >>> 0;
     h2 = ((h2 * 37) ^ c) >>> 0;
   }
-  return h1.toString(36) + h2.toString(36);
+  // Identical phones (same model, OS version, language) produce the same
+  // trait hash, so on its own it would make the server-side device lock
+  // block classmates who happen to own the same iPhone. Append a random id
+  // kept in this browser; the trait part stays first so the teacher can
+  // still see when one phone model signs in for several people.
+  let rnd = '';
+  try{
+    rnd = localStorage.getItem('attn_deviceRnd') || '';
+    if(!rnd){
+      rnd = Math.random().toString(36).slice(2, 8);
+      localStorage.setItem('attn_deviceRnd', rnd);
+    }
+  }catch(e){}
+  return h1.toString(36) + h2.toString(36) + (rnd ? '-' + rnd : '');
 }
 
 function now(){
